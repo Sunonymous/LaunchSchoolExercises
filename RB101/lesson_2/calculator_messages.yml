@@ -1,0 +1,54 @@
+template:
+  choice_yes: 
+  choice_no: 
+  introduction:
+  greeting:
+  invalid_name:
+  get_number1:
+  get_number2:
+  invalid_number:
+  choose_operator:
+  invalid_operator:
+  confirmation:
+  play_again: 
+  goodbye: 
+
+en:
+  choice_yes: 'y'
+  choice_no: 'n'
+  introduction: "Welcome to Calculator! Please enter your name:"
+  greeting: "Hello, %{name}. It's nice to see you again."
+  invalid_name: "Please enter a valid name."
+  get_number1: "What is the first number?"
+  get_number2: "What is the second number?"
+  invalid_number: "This number is not valid. Please enter another."
+  choose_operator: |
+    What operation shall I perform?
+    => 1) add
+    => 2) subtract
+    => 3) multiply
+    => 4) divide
+  invalid_operator: "Please choose 1, 2, 3, or 4."
+  confirmation: "Wonderful. I will calculate %{calculation}."
+  play_again: "Would you like to perform another calculation? Y/n"
+  goodbye: "Thank you for using Calculator."
+es:
+  choice_yes: 's'
+  choice_no: 'n'
+  introduction: "Bienvenidos a Calculadora! Dime tu nombre, por favor:"
+  greeting: "Hola, %{name}. Que bueno verte de nuevo."
+  invalid_name: "Perdon, ese nombre no es valido. Hazlo otra vez, por favor."
+  get_number1: "Que es el primer numero?"
+  get_number2: "Que es el segundo numero?"
+  invalid_number: "Ese numero no es valido. Tienes otro?"
+  choose_operator: |
+    Cual operacion quieres que uso?
+    => 1) adición 
+    => 2) sustracción
+    => 3) multiplicación
+    => 4) división
+  invalid_operator: "Ese operador no es valido. Por favor escoge 1, 2, 3, o 4."
+  confirmation: "Bien. Voy a calcular %{calculation}"
+  play_again: "Quieres hacer otra calculacion? S/n"
+  goodbye: "Gracias por usar Calculadora!"
+  
