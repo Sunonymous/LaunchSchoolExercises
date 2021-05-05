@@ -115,7 +115,7 @@ loop do # main loop
   operators = ['+', '-', '*', '/']
   calculation = "#{numbers[0]} #{operators[operator.to_i - 1]} #{numbers[1]}"
   prompt(format(messages('confirmation'), calculation: calculation))
-  prompt("The result is #{result}.")
+  prompt(format(messages('result'), result: result))
 
   prompt(messages('play_again'))
   answer = gets.chomp
