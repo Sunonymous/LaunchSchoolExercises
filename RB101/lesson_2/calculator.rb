@@ -44,7 +44,7 @@ def operation_to_message(op)
            when '3'
              'Multiplying'
            when '4'
-             'Dividing'
+              'Dividing'
            end
   result
 end
