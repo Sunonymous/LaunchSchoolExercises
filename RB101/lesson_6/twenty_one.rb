@@ -1,22 +1,25 @@
 # Twenty-One
 # Forecasted Settings:
-#   Show Hand Value on Each Turn
 #   Use numerical values for card display values
-#   Show dealer's hidden card on player bust
 # TODO
 # Extract Game Flow Methods
 #   - Study what is repeated and see if it can be refactored
 # Remove CARD_POINTS and use the LS calculation method
 # Create screen/turn drawing method
-# Colorize Cards!
-# Cache Value of Hand Totals Upon Each New Card
 # Make Tournament Style
-# Create GOAL_POINTS and DEALER_STOPPOINT constants
-# Sleep to simulate card flipping
-# Print line after value printing
+# Experiment with settings singleton
+#   - create get_setting method to reach for the first element of a settings symbol
+
+class String
+  def red_card;           "\e[31;47m#{self}\e[0m" end
+  def black_card;         "\e[30;47m#{self}\e[0m" end
+end
 
 ## CONSTANTS
 GAME_WIDTH = 60
+GAME_NAME = 'Twenty-One'
+POINT_LIMIT = 21
+DEALER_STOPPOINT = 17
 SUITS = %w(S H D C)
 CARD_VALUES = %w(A 2 3 4 5 6 7 8 9 T J Q K)
 CARD_POINTS = {
@@ -102,17 +105,22 @@ def calculate_hand_value(hand)
     number_of_aces += 1 if card.include?('A')
     total_points += get_card_points(card)
   end
-  until number_of_aces == 0 || total_points <= 21
-    total_points -= 10 if total_points > 21
+  until number_of_aces == 0 || total_points <= POINT_LIMIT
+    total_points -= 10 if total_points > POINT_LIMIT
     number_of_aces -= 1
   end
   total_points
 end
 
-def draw_and_display_card!(player, deck, hand)
+def draw_and_display_card!(player, deck, hand, colorize, points)
   deal_new_card!(deck, hand)
-  new_card = display_card(hand.last)
+  update_player_points(points, player, hand)
+  new_card = display_card(hand.last, colorize)
   prompt_update("#{player} drew the card: #{new_card}.")
+end
+
+def update_player_points(points, player, hand)
+  points[player.to_sym] = calculate_hand_value(hand)
 end
 
 #######################
@@ -144,8 +152,7 @@ end
 def next_phase(phase_name)
   clear_screen
   prompt_box(phase_name)
-  puts "\nPress enter to continue...\n"
-  gets
+  wait_until_enter
   clear_screen
 end
 
@@ -176,7 +183,8 @@ def prompt_choice(prompt, options)
 end
 
 def wait_until_enter
-  puts "\nPress enter to continue..."
+  puts
+  print "Press enter to continue... ".center(GAME_WIDTH)
   gets
   clear_screen
 end
@@ -184,17 +192,32 @@ end
 ########
 ##### DATA
 
-def display_card(card_str)
+def display_card(card_str, colorize)
   value = DISPLAY_VALUES[get_card_val(card_str)]
   suit = DISPLAY_SUITS[get_suit_val(card_str)]
-  "#{value} of #{suit}"
+  card = "#{value} of #{suit}".center(19)
+  colorize ? colorize_card("[#{card}]") : "[#{card}]"
 end
 
-def display_hand(hand, hidden=[])
-  hand.each_with_index do |card, idx|
-    card = hidden.include?(idx) ? '[HIDDEN]' : display_card(card)
-    puts "#{card}".center(GAME_WIDTH)
+def colorize_card(card)
+  red = card.include?('Hearts') || card.include?('Diamonds')
+  if red
+    card.red_card
+  else
+    card.black_card
   end
+end
+  
+def display_hand(colorize, hand, hidden=[])
+  hand.each_with_index do |card, idx|
+    card = hidden.include?(idx) ? '[HIDDEN]' : display_card(card, colorize)
+    puts "#{card}".center(GAME_WIDTH + 10)
+  end
+end
+
+def display_hand_value(points, name)
+  puts
+  puts "\t\t\tValue: #{points[name.to_sym]} points".center(GAME_WIDTH)
 end
 
 #######################
@@ -206,24 +229,31 @@ def initial_deal!(deck, player_hand, dealer_hand)
   2.times { deal_new_card!(deck, dealer_hand) }
 end
 
-def show_hand(name, hand, hidden_cards=[])
+def show_hand(points, settings, name, hand, hidden_cards=[])
   puts "#{name}'s Hand:\n".center(GAME_WIDTH)
-  display_hand(hand, hidden_cards)
+  display_hand(settings[:colored_cards], hand, hidden_cards)
+  if settings[:always_show_value]
+    display_hand_value(points, name)
+  end
   puts
+end
+
+def has_bust?(points, player)
+  points[player.to_sym] > POINT_LIMIT
 end
 
 def get_dealer_action(hand)
   points = calculate_hand_value(hand)
-  if points > 21
+  if points > POINT_LIMIT
     'bust'
-  elsif points >= 17
+  elsif points >= DEALER_STOPPOINT
     'stay'
   else
     'hit'
   end
 end
 
-def recycle_cards_into_deck(active_cards, deck)
+def recycle_cards_into_deck!(active_cards, deck)
   cards = active_cards.values.flatten
   until cards.size == 0
     deck.unshift(cards.pop)
@@ -236,36 +266,50 @@ end
 
 clear_screen
 game_state = 'menu'
-next_phase('Welcome to Twenty-One!')
+next_phase("Welcome to #{GAME_NAME}!")
 
 deck = create_deck
 shuffle_deck!(deck)
+settings = {
+  colored_cards: true,
+  always_show_value: true
+}
 
 loop do
   cards_in_play = {
     dealer_hand: [],
     player_hand: []
   }
+  points = {
+    Player: 0,
+    Dealer: '?'
+  }
   initial_deal!(deck, cards_in_play[:player_hand], cards_in_play[:dealer_hand])
 
   # PLAYER TURN
   game_state = 'player_turn'
+  update_player_points(points, 'Player', cards_in_play[:player_hand])
   loop do
     clear_screen
     prompt_box('Player\'s Turn')
     # EXTRACT to show_all_cards
-    show_hand('Player', cards_in_play[:player_hand])
+    show_hand(points, settings, 'Player', cards_in_play[:player_hand])
     print_hand_separator
-    show_hand('Dealer', cards_in_play[:dealer_hand], [1])
+    show_hand(points, settings, 'Dealer', cards_in_play[:dealer_hand], [1])
     case game_state
     when 'dealer_win'
       prompt_update('Player has busted!')
       wait_until_enter
       break
     when 'dealt_card'
-      draw_and_display_card!('Player', deck, cards_in_play[:player_hand])
-      player_points = calculate_hand_value(cards_in_play[:player_hand])
-      game_state = player_points > 21 ? 'dealer_win' : 'player_turn'
+      draw_and_display_card!(
+        'Player',
+        deck,
+        cards_in_play[:player_hand],
+        settings[:colored_cards],
+        points
+      )
+      game_state = has_bust?(points, 'Player') ? 'dealer_win' : 'player_turn'
       wait_until_enter
       next
     when 'player_turn'
@@ -280,6 +324,7 @@ loop do
   end
 
   # DEALER TURN
+  update_player_points(points, 'Dealer', cards_in_play[:dealer_hand])
   loop do
     clear_screen
     dealer_action = nil
@@ -289,11 +334,12 @@ loop do
     when 'dealer_turn'
       prompt_box('Dealer\'s Turn')
     # EXTRACT to show_all_cards
-      show_hand('Player', cards_in_play[:player_hand])
+      show_hand(points, settings, 'Player', cards_in_play[:player_hand])
       print_hand_separator
-      show_hand('Dealer', cards_in_play[:dealer_hand])
+      show_hand(points, settings, 'Dealer', cards_in_play[:dealer_hand])
       dealer_action = get_dealer_action(cards_in_play[:dealer_hand])
     end
+
     case dealer_action
     when 'bust'
       prompt_update('Dealer busts!')
@@ -302,7 +348,13 @@ loop do
       break
     when 'hit'
       prompt_update("Dealer must #{dealer_action}.")
-      draw_and_display_card!('Dealer', deck, cards_in_play[:dealer_hand])
+      draw_and_display_card!(
+        'Dealer',
+        deck,
+        cards_in_play[:dealer_hand],
+        settings[:colored_cards],
+        points
+      )
       wait_until_enter
       next
     when 'stay'
@@ -315,23 +367,23 @@ loop do
 
   # ANNOUNCE WINNER
   winner = nil
-  player_points = calculate_hand_value(cards_in_play[:player_hand])
-  dealer_points = calculate_hand_value(cards_in_play[:dealer_hand])
-  game_state = player_points == dealer_points ? 'draw' : game_state
+  game_state = points[:Player] == points[:Dealer] ? 'draw' : game_state
   case game_state
   when 'player_win' then winner = 'Player'
   when 'dealer_win' then winner = 'Dealer'
   when 'draw' then prompt_box('It\'s a draw!')
   when 'calculate_winner'
-    winner = player_points > dealer_points ? 'Player' : 'Dealer'
+    winner = points[:Player] > points[:Dealer] ? 'Player' : 'Dealer'
   end
   prompt_box("#{winner} is the winner!") if game_state != 'draw'
-  show_hand('Player', cards_in_play[:player_hand])
+  show_hand(points, settings, 'Player', cards_in_play[:player_hand])
   # EXTRACT to display_value
-  puts "\t\t\tValue: #{player_points} points".center(GAME_WIDTH)
+  puts "\t\t\tValue: #{points[:Player]} points".
+    center(GAME_WIDTH) unless settings[:always_show_value]
   puts
-  show_hand('Dealer', cards_in_play[:dealer_hand])
-  puts "\t\t\tValue: #{dealer_points} points".center(GAME_WIDTH)
+  show_hand(points, settings, 'Dealer', cards_in_play[:dealer_hand])
+  puts "\t\t\tValue: #{points[:Dealer]} points".
+    center(GAME_WIDTH) unless settings[:always_show_value]
   wait_until_enter
 
   # PLAY AGAIN?
@@ -339,7 +391,7 @@ loop do
   puts "\n" * 5
   play_again = prompt_choice('Would you like to play again?', %w(yes y no n))
   if play_again.start_with?('y')
-    recycle_cards_into_deck(cards_in_play, deck)
+    recycle_cards_into_deck!(cards_in_play, deck)
     next
   end
   break
