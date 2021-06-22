@@ -6,10 +6,11 @@ SETTINGS = {
 }
 
 class Player
-  attr_accessor :selection, :name
+  attr_accessor :selection, :name, :history
 
   def initialize
     @selection = nil
+    @history = RecordBook.new
   end
 end
 
@@ -39,6 +40,7 @@ class Human < Player
       print "Please make a valid selection.\n\t>> "
     end
     self.selection = Move.new(Move.parse_move(choice))
+    @history.record_move(Move.parse_move(choice))
   end
 end
 
@@ -54,12 +56,17 @@ class Computer < Player
 
   def select
     self.selection = Move.new(Move::VALUES.sample)
+    @history.record_move(self.selection.to_s)
   end
 end
 
 class Move
+  attr_reader :value
+
   VALUES = ['rock', 'paper', 'scissors']
+  VALUES
   ACCEPTABLE_INPUT = ['r', 'rock', 'p', 'paper', 's', 'scissors']
+  ACCEPTABLE_INPUT
   LOGIC_WINS = {
     'rock' => ['scissors'],
     'scissors' => ['paper'],
@@ -107,10 +114,31 @@ class Move
   def loses?(other_move)
     LOGIC_LOSSES[@value].include?(other_move.value)
   end
+end
 
-  protected
+class RecordBook
+  def initialize
+    @moves = {
+      'rock' => 0,
+      'paper' => 0,
+      'scissors' => 0,
+      'lizard' => 0,
+      'spock' => 0
+    }
+  end
 
-  attr_reader :value
+  def record_move(move)
+    @moves[move] += 1
+  end
+
+  def display_record(name)
+    puts "Here are the number of times #{name} has selected:"
+    @moves.each do |move, count|
+      next if count == 0
+      puts "\t#{move}: #{count} times"
+    end
+    puts
+  end
 end
 
 class Tournament
@@ -189,7 +217,7 @@ class RockPaperScissors
 
   def greet
     system('clear')
-    puts "Welcome to #{game_name}!"
+    big_box("Welcome to #{game_name}!")
     wait_for_enter
   end
 
@@ -236,7 +264,7 @@ class RockPaperScissors
   def display_grand_winner
     system('clear')
     big_box('TOURNAMENT COMPLETE')
-    stagger_print('The grand winner is', 0.1)
+    stagger_print("\tThe grand winner is", 0.1)
     stagger_print('...', 0.5)
     puts " #{tournament.grand_winner.name}!"
     sleep(0.5)
@@ -275,6 +303,8 @@ class RockPaperScissors
       @tournament = Tournament.new(SETTINGS[:num_rounds], @human, @computer)
     end
     dismiss
+    human.history.display_record(human.name)
+    computer.history.display_record(computer.name)
   end
 end
 
