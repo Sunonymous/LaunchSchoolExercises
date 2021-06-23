@@ -43,7 +43,6 @@ class Human < Player
   end
 
   def select
-    Move.new('rock') # to refresh ls mode
     offer_options
     choice = nil
     loop do
@@ -94,10 +93,9 @@ class Move
 
   def initialize(value)
     @value = value
-    enable_lizard_spock if SETTINGS[:lizard_spock]
   end
 
-  def enable_lizard_spock
+  def self.enable_lizard_spock
     @@options.concat(['lizard', 'spock'])
     @@acceptable_input.concat(['sc', 'sp', 'l', 'lizard', 'spock'])
     @@acceptable_input.delete('s')
@@ -343,6 +341,7 @@ class RockPaperScissors
 
   def play
     greet
+    Move.enable_lizard_spock if SETTINGS[:lizard_spock]
     game_loop
     dismiss
     human.history.display_record(human.name)
