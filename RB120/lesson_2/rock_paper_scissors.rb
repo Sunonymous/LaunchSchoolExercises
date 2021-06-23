@@ -1,10 +1,8 @@
 # Rock, Paper, Scissors
 
-require 'pry-byebug'
-
 SETTINGS = {
   num_rounds: 3,
-  lizard_spock: false
+  lizard_spock: true
 }
 
 class Player
@@ -58,15 +56,43 @@ end
 class Computer < Player
   def initialize
     super
-    set_name
+    set_name_and_personality
   end
 
-  def set_name
-    @name = ['Computinator', 'xxxRPSChamp99Xx', 'BotTrotter'].sample
+  def set_name_and_personality
+    names = ['Computinator', 'xxxRPSChamp99Xx', 'BotTrotter', 'Wobble']
+    @name = names.sample
+    personalities = [:HeavyOneOfThree, :AnythingGoes, :AlwaysOne, :Indecisive]
+    @personality = personalities[names.index(@name)]
+    set_options
+  end
+
+  def set_options
+    @my_options = []
+    case @personality
+    when :AnythingGoes
+      @my_options = Move.options
+    when :AlwaysOne
+      @my_options.push(Move.options.sample)
+    when :Indecisive
+      until @my_options.size == 2
+        op = Move.options.sample
+        @my_options.push(op) if !@my_options.include?(op)
+      end
+    when :HeavyOneOfThree
+      heavy = Move.options.sample
+      @my_options.concat([heavy, heavy, heavy])
+      until @my_options.size == 5
+        op = Move.options.sample
+        @my_options.push(op) if !@my_options.include?(op)
+      end
+    else
+      raise Exceptions.new('The computer has an invalid personality.')
+    end
   end
 
   def select
-    self.selection = Move.new(Move.options.sample)
+    self.selection = Move.new(@my_options.sample)
     @history.record_move(selection.to_s)
   end
 end
@@ -217,6 +243,7 @@ class RockPaperScissors
 
   def initialize
     @game_name = 'Rock, Paper, Scissors 2.0'
+    Move.enable_lizard_spock if SETTINGS[:lizard_spock]
     @human = Human.new()
     @computer = Computer.new()
     @tournament = Tournament.new(SETTINGS[:num_rounds], @human, @computer)
@@ -329,7 +356,6 @@ class RockPaperScissors
 
   def play
     greet
-    Move.enable_lizard_spock if SETTINGS[:lizard_spock]
     game_loop
     dismiss
     human.history.display_record(human.name)
