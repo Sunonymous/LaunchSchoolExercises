@@ -98,13 +98,8 @@ class Move
   end
 
   def enable_lizard_spock
-    @@options.push('lizard')
-    @@options.push('spock')
-    @@acceptable_input.push('sc')
-    @@acceptable_input.push('sp')
-    @@acceptable_input.push('l')
-    @@acceptable_input.push('lizard')
-    @@acceptable_input.push('spock')
+    @@options.concat(['lizard', 'spock'])
+    @@acceptable_input.concat(['sc', 'sp', 'l', 'lizard', 'spock'])
     @@acceptable_input.delete('s')
   end
 
