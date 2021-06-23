@@ -1,5 +1,7 @@
 # Rock, Paper, Scissors
 
+require 'pry-byebug'
+
 SETTINGS = {
   num_rounds: 3,
   lizard_spock: false
@@ -31,12 +33,22 @@ class Human < Player
     @name = response
   end
 
+  def offer_options
+    if SETTINGS[:lizard_spock]
+      print "Choose: rock (r), paper (p), scissors (sc), lizard (l), spock (sp)"
+      print "\n\t>> "
+    else
+      print "Please choose: rock (r), paper (p), or scissors (s):\n\t>> "
+    end
+  end
+
   def select
-    print "Please choose: rock (r), paper (p), or scissors (s):\n\t>> "
+    Move.new('rock') # to refresh ls mode
+    offer_options
     choice = nil
     loop do
       choice = gets.chomp.downcase
-      break if Move::ACCEPTABLE_INPUT.include?(choice)
+      break if Move.acceptable_input.include?(choice)
       print "Please make a valid selection.\n\t>> "
     end
     self.selection = Move.new(Move.parse_move(choice))
@@ -55,31 +67,61 @@ class Computer < Player
   end
 
   def select
-    self.selection = Move.new(Move::VALUES.sample)
-    @history.record_move(self.selection.to_s)
+    self.selection = Move.new(Move.options.sample)
+    @history.record_move(selection.to_s)
   end
 end
 
 class Move
   attr_reader :value
 
-  VALUES = ['rock', 'paper', 'scissors']
-  VALUES
-  ACCEPTABLE_INPUT = ['r', 'rock', 'p', 'paper', 's', 'scissors']
-  ACCEPTABLE_INPUT
-  LOGIC_WINS = {
-    'rock' => ['scissors'],
-    'scissors' => ['paper'],
-    'paper' => ['rock']
+  @@options = ['rock', 'paper', 'scissors']
+  @@acceptable_input = ['r', 'rock', 'p', 'paper', 's', 'scissors']
+  @@logic_wins = {
+    'rock' => ['scissors', 'lizard'],
+    'scissors' => ['paper', 'lizard'],
+    'paper' => ['rock', 'spock'],
+    'lizard' => ['spock', 'paper'],
+    'spock' => ['scissors', 'rock']
   }
-  LOGIC_LOSSES = {
-    'rock' => ['paper'],
-    'scissors' => ['rock'],
-    'paper' => ['scissors']
+  @@logic_losses = {
+    'rock' => ['paper', 'spock'],
+    'scissors' => ['rock', 'spock'],
+    'paper' => ['scissors', 'lizard'],
+    'lizard' => ['rock', 'scissors'],
+    'spock' => ['lizard', 'paper']
   }
 
   def initialize(value)
     @value = value
+    enable_lizard_spock if SETTINGS[:lizard_spock]
+  end
+
+  def enable_lizard_spock
+    @@options.push('lizard')
+    @@options.push('spock')
+    @@acceptable_input.push('sc')
+    @@acceptable_input.push('sp')
+    @@acceptable_input.push('l')
+    @@acceptable_input.push('lizard')
+    @@acceptable_input.push('spock')
+    @@acceptable_input.delete('s')
+  end
+
+  def self.acceptable_input
+    @@acceptable_input
+  end
+
+  def self.logic_wins
+    @@logic_wins
+  end
+
+  def self.logic_losses
+    @@logic_losses
+  end
+
+  def self.options
+    @@options
   end
 
   def self.parse_move(input)
@@ -87,6 +129,9 @@ class Move
     when 'r' then 'rock'
     when 'p' then 'paper'
     when 's' then 'scissors'
+    when 'sc' then 'scissors'
+    when 'sp' then 'spock'
+    when 'l' then 'lizard'
     else input
     end
   end
@@ -108,11 +153,11 @@ class Move
   end
 
   def wins?(other_move)
-    LOGIC_WINS[@value].include?(other_move.value)
+    @@logic_wins[@value].include?(other_move.value)
   end
 
   def loses?(other_move)
-    LOGIC_LOSSES[@value].include?(other_move.value)
+    @@logic_losses[@value].include?(other_move.value)
   end
 end
 
@@ -132,7 +177,7 @@ class RecordBook
   end
 
   def display_record(name)
-    puts "Here are the number of times #{name} has selected:"
+    puts "#{name} has played these moves:"
     @moves.each do |move, count|
       next if count == 0
       puts "\t#{move}: #{count} times"
@@ -222,6 +267,7 @@ class RockPaperScissors
   end
 
   def dismiss
+    puts
     big_box("Thank you for playing #{game_name}!")
   end
 
@@ -237,7 +283,6 @@ class RockPaperScissors
     puts
   end
 
-  # rubocop:disable Metrics/MethodLength
   def evaluate_winner
     p1_move = @human.selection
     p2_move = @computer.selection
@@ -247,11 +292,9 @@ class RockPaperScissors
     elsif p1_move.loses?(p2_move)
       tournament.add_win(computer)
       "#{computer.name} wins!"
-    else
-      "It's a tie..."
+    else "It's a tie..."
     end
   end
-  # rubocop:enable Metrics/MethodLength
 
   def display_winner
     big_box("RESULTS")
@@ -292,8 +335,7 @@ class RockPaperScissors
     choice[0] == 'y'
   end
 
-  def play
-    greet
+  def game_loop
     loop do
       system('clear')
       take_turn
@@ -302,6 +344,11 @@ class RockPaperScissors
       break unless play_again?
       @tournament = Tournament.new(SETTINGS[:num_rounds], @human, @computer)
     end
+  end
+
+  def play
+    greet
+    game_loop
     dismiss
     human.history.display_record(human.name)
     computer.history.display_record(computer.name)
