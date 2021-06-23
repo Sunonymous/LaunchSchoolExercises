@@ -133,18 +133,6 @@ class Move
     @value
   end
 
-  def rock?
-    @value == 'rock'
-  end
-
-  def paper?
-    @value == 'paper'
-  end
-
-  def scissors?
-    @value == 'scissors'
-  end
-
   def wins?(other_move)
     @@logic_wins[@value].include?(other_move.value)
   end
