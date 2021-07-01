@@ -1,10 +1,9 @@
 # GameBox, The Real
 
+# WATCHFOR
+# Keep an eye on how the Settings Menu/Interface interacts with the Recast/Replace Method
 # TODO
-# Commit to Hub
 # Add Settings Class
-# Add Input Class
-#   with new Replace Value Function
 
 class Box
   attr_reader :width
@@ -104,8 +103,44 @@ module Display
   end
 end
 
+module Input
+  def get_nonempty_string(prompt)
+    choice_box(prompt, [''])
+    loop do
+      print("\t>> ")
+      choice = gets.chomp.downcase
+      return choice if !choice.strip.empty?
+      puts 'Please enter a valid response.'
+    end
+  end
+
+  def get_choice(message, options)
+    choice_box(message, options)
+    loop do
+      print("\t>> ")
+      choice = gets.chomp.downcase
+      return choice if options.map(&:to_s).include?(choice)
+      puts 'Invalid response. Please try again.'
+    end
+  end
+
+  def replace_with_choice(message, options)
+    selection = get_choice(message, options)
+    recast_to_original_type(options.first, selection)
+  end
+
+  def recast_to_original_type(klass, object)
+    case klass
+    when Integer then object.to_i
+    when TrueClass, FalseClass then object.downcase.to_i == 'true'
+    when Float then object.to_f
+    end
+  end
+end
+
+
 class GameBox
-  include Display
+  include Display, Input
   attr_reader :width
 
   def initialize(width)
@@ -119,7 +154,9 @@ if debug
   puts "\u2317  Tic Tac Toe \u2317"
   t = GameBox.new(75)
   # t.clear_screen
-  t.choice_box('What would you like to do?', %w(jump run sit))
+  # t.choice_box('What would you like to do?', %w(jump run sit))
+  test = t.replace_with_choice('Enter a name below', [5, 6, 7])
+  puts "Class: #{test.class}"
 else
   # real program
 end
