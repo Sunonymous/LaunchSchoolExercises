@@ -1,13 +1,13 @@
 # GameBox, The Real
 
 # WATCHFOR
-# Watch how the Settings Menu/Interface interacts with the Recast/Replace Method
 # If too many settings appear, better to refactor to include categories.
 # TODO
 
 class Box
   attr_reader :width
 
+  # Key 0-Normal, 1-thick, 2-rounded corners, 3-dotted, 4-double
   @@parts = {
     topl: ["\u250C", "\u250F", "\u256D", "\u250C", "\u2554"],
     top: ["\u2500", "\u2501", "\u2500", "\u2504", "\u2550"],
@@ -335,20 +335,22 @@ class Setting
 end
 
 class GameBox
-  # GameBox puts the whole show together.
   include Display
   include Input
   attr_reader :width, :settings
 
   def initialize(width)
     @width          = width
-    @round          = 1
-    @end_conditions = []
+    @end_conditions = [Proc.new { @target == @rolled }]
     @winner         = nil
     @game_over      = false
     @updates        = []
+    @update_delay   = 0.5
     @settings       = Settings.new(@width)
     default_settings
+    # for default nothing game
+    @target = 5
+    @rolled = 0
   end
 
   def reset_data
@@ -368,14 +370,86 @@ class GameBox
 
   def end_game?
     results = @end_conditions.map(&:call)
-    @game_over = true if results.any?(true)
+    if results.any?(true)
+      @game_over = true
+    else
+      false
+    end
+  end
+
+  def add_update(message)
+    @updates.push(message)
+  end
+
+  def header
+    messages = ['Random Number Game']
+    message(messages)
+  end
+
+  def roll_number
+    @rolled = rand(0..5)
+    add_update("I rolled a #{@rolled}.")
+    add_update('I have rolled the target number!') if @target == @rolled
+  end
+
+  def display_results
+    puts "The target number is #{@target}."
+    if @rolled.nil?
+      add_update('I have not rolled a number yet.')
+    else
+      puts "The number I have is currently #{@rolled}."
+    end
+  end
+
+  def show_playing_field
+    clear_screen
+    header
+    5.times { puts }
+    display_results
+    5.times { puts }
+  end
+
+  def display_updates
+    clear_screen
+    show_playing_field
+    no_updates = @updates.empty?
+    until @updates.empty?
+      update(@updates.shift)
+      sleep(@update_delay)
+    end
+    wait_until_enter unless no_updates
+  end
+
+  def hello
+    clear_screen
+    puts Box.new(4, 'Random Number Game', width, 9)
+    wait_until_enter
+  end
+
+  def goodbye
+    clear_screen
+    puts Box.new(4, 'Thanks for playing!', width, 9)
+  end
+
+  def play
+    reset_data
+    hello
+    loop do
+      break if end_game?
+      show_playing_field
+      roll_number
+      add_update('The game is over!') if end_game?
+      display_updates
+    end
+    goodbye
   end
 end
 
 debug = true
 
 if debug
-  puts "\u2317  Tic Tac Toe \u2317"
-  t = GameBox.new(80)
-  t.settings.menu
+  # test things here
+  wide = 80
+  t = GameBox.new(wide)
+  t.play
 end
