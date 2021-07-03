@@ -155,25 +155,30 @@ module Input
     recast_to_original_type(options.first, selection)
   end
 
-  def get_within_range(range, prompt = "\t>> ")
+  def get_within_range(val, range, prompt = "\t>> ")
     # function currently limited to integer-based ranges
     msg = "Please provide a value between #{range.first} and #{range.last}."
     choice_box(msg, [''])
     loop do
       print(prompt)
-      choice = gets.chomp.downcase
+      choice = gets.chomp#.downcase
       cast_options = range.to_a.map(&:to_s)
-      return choice.to_i if cast_options.include?(choice)
+      if cast_options.include?(choice)
+        return recast_to_original_type(val, choice) 
+      end
 
       puts 'Invalid response. Please try again.'
     end
   end
+
+  protected
 
   def recast_to_original_type(klass, object)
     case klass
     when Integer then object.to_i
     when TrueClass, FalseClass then object.downcase.to_i == 'true'
     when Float then object.to_f
+    when String then object
     end
   end
 end
@@ -192,20 +197,12 @@ class Settings
     @list_spacing = 2
   end
 
-  def clear
-    @settings.clear
-  end
-
   def get(name)
     @settings[name].get
   end
 
   def set(name)
     @settings[name].change_val
-  end
-
-  def prompt(message)
-    puts "\u21E8 #{message} \u21E6".center(@width)
   end
 
   def make(name, display_name, value, range, display_vals = nil)
@@ -221,6 +218,16 @@ class Settings
 
       alter(get_from_id(choice))
     end
+  end
+
+  def clear
+    @settings.clear
+  end
+
+  private
+
+  def prompt(message)
+    puts "\u21E8 #{message} \u21E6".center(@width)
   end
 
   def display_settings(offer_quit = true)
@@ -281,11 +288,12 @@ class Settings
     prompt = "\t\t(#{setting.name}) << "
     case setting.range
     when String then setting.set(get_str_choice('Enter a new value:', prompt))
-    when Range then setting.set(get_within_range(setting.range, prompt))
+    when Range then setting.set(get_within_range(setting.value, setting.range, prompt))
     when Array
-      setting.set(get_from_options(setting.name, setting.display_values))\
-        unless setting.boolean?
-      setting.set(!setting.value) if setting.boolean?
+      setting.set(get_from_options(setting.name, setting.display_values))#\
+        # unless setting.boolean?
+      #setting.set(!setting.value) if setting.boolean?
+    when TrueClass then setting.set(!setting.value)
     end
   end
 end
@@ -309,7 +317,11 @@ class Setting
   def display_value
     return @value.to_s if display_values.nil?
 
-    @display_values[range.index(@value)].to_s
+    case @range
+    when TrueClass then @value ? 'On' : 'Off'
+    else
+      @display_values[range.index(@value)].to_s
+    end
   end
 
   def to_s
@@ -342,11 +354,10 @@ class GameBox
   def initialize(width)
     @width          = width
     @end_conditions = [Proc.new { @target == @rolled }]
-    @winner         = nil
     @game_over      = false
     @updates        = []
     @update_delay   = 0.5
-    @settings       = Settings.new(@width)
+    @settings       = Settings.new(@width) # may implement differently
     default_settings
     # for default nothing game
     @target = 5
@@ -431,13 +442,17 @@ class GameBox
     puts Box.new(4, 'Thanks for playing!', width, 9)
   end
 
+  def game_logic
+    show_playing_field
+    roll_number
+  end
+
   def play
     reset_data
     hello
     loop do
       break if end_game?
-      show_playing_field
-      roll_number
+      game_logic
       add_update('The game is over!') if end_game?
       display_updates
     end
@@ -445,11 +460,12 @@ class GameBox
   end
 end
 
-debug = true
+debug = false
 
 if debug
   # test things here
   wide = 80
   t = GameBox.new(wide)
+  t.settings.menu
   t.play
 end
