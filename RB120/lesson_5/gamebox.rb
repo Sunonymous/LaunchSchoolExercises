@@ -1,6 +1,9 @@
 # GameBox, The Real
 
+# WATCHFOR
 # If too many settings appear, better to refactor to include categories.
+# TODO
+
 class Box
   attr_reader :width
 
@@ -85,8 +88,12 @@ class Box
   end
 end
 
-module Display
+class InputOutput
   attr_reader :width
+
+  def initialize(width)
+    @width = width
+  end
 
   def clear_screen
     system('clear')
@@ -116,15 +123,13 @@ module Display
     box.to_s.split("\n").each { |line| puts line.center(width, ' ') }
   end
 
-  def notice(notice)
+  def notice(msg)
     clear_screen
-    puts Box.new(1, notice, width, 2)
+    puts Box.new(1, msg, width, 2)
     wait_until_enter
     clear_screen
   end
-end
 
-module Input
   def get_str_choice(message, prompt = "\t>> ")
     choice_box(message, [''])
     loop do
@@ -153,12 +158,12 @@ module Input
   end
 
   def get_within_range(val, range, prompt = "\t>> ")
-    # function currently limited to integer-based ranges
+    # function does not currently support floats
     msg = "Please provide a value between #{range.first} and #{range.last}."
     choice_box(msg, [''])
     loop do
       print(prompt)
-      choice = gets.chomp#.downcase
+      choice = gets.chomp
       cast_options = range.to_a.map(&:to_s)
       if cast_options.include?(choice)
         return recast_to_original_type(val, choice) 
@@ -181,12 +186,11 @@ module Input
 end
 
 class Settings
-  include Display
-  include Input
 
-  attr_reader :settings, :catalog, :width
+  attr_reader :settings, :catalog, :width, :io
 
   def initialize(menu_width)
+    @io = InputOutput.new(menu_width)
     @settings = {}
     @catalog = []
     @width = menu_width
@@ -208,7 +212,7 @@ class Settings
 
   def menu
     loop do
-      system('clear')
+      io.clear_screen
       display_settings
       choice = choose_setting_to_edit
       break if choice.zero?
@@ -255,7 +259,7 @@ class Settings
     options = []
     catalog.each { |pair| options.push(pair.first) }
     options.concat(%w(q quit))
-    replace_with_choice('Choose a setting to change:', options)
+    io.replace_with_choice('Choose a setting to change:', options)
   end
 
   def get_from_id(id)
@@ -272,11 +276,11 @@ class Settings
       puts "#{num} - #{options[num - 1]}".center(width)
     end
     puts "\n\n"
-    replace_with_choice('Please select an option from above.', numbers) - 1
+    io.replace_with_choice('Please select an option from above.', numbers) - 1
   end
 
   def editing_screen
-    clear_screen
+    io.clear_screen
     display_settings(false)
   end
 
@@ -284,12 +288,10 @@ class Settings
     editing_screen
     prompt = "\t\t(#{setting.name}) << "
     case setting.range
-    when String then setting.set(get_str_choice('Enter a new value:', prompt))
-    when Range then setting.set(get_within_range(setting.value, setting.range, prompt))
+    when String then setting.set(io.get_str_choice('Enter a new value:', prompt))
+    when Range then setting.set(io.get_within_range(setting.value, setting.range, prompt))
     when Array
-      setting.set(get_from_options(setting.name, setting.display_values))#\
-        # unless setting.boolean?
-      #setting.set(!setting.value) if setting.boolean?
+      setting.set(get_from_options(setting.name, setting.display_values))
     when TrueClass then setting.set(!setting.value)
     end
   end
@@ -344,12 +346,11 @@ class Setting
 end
 
 class GameBox
-  include Display
-  include Input
-  attr_reader :width, :settings
+  attr_reader :width, :settings, :io
 
   def initialize(width)
     @width          = width
+    @io             = InputOutput.new(width)
     @end_conditions = [Proc.new { @target == @rolled }]
     @game_over      = false
     @updates        = []
@@ -368,21 +369,13 @@ class GameBox
 
   def default_settings
     settings.clear
-    settings.make(:console_width, 'Game Width', @width, 50..100)
-    settings.make(:player_1_human, 'Player One is Human', true, [true, false],
-                  Setting::YESNO)
-    settings.make(:player_1_name, 'Player 1 Name', 'Player', 'str')
-    settings.make(:bot_difficulty, 'Computer Difficulty', 2, (0..2).to_a,
-                  %w(Haybale Distracted Challenging))
+    # add default settings below
+    settings.make(:dummy_setting, 'I serve no master', true, true)
   end
 
   def end_game?
     results = @end_conditions.map(&:call)
-    if results.any?(true)
-      @game_over = true
-    else
-      false
-    end
+    results.any?(true) ? @game_over = true : false
   end
 
   def add_update(message)
@@ -391,7 +384,7 @@ class GameBox
 
   def header
     messages = ['Random Number Game']
-    message(messages)
+    io.message(messages)
   end
 
   def roll_number
@@ -410,7 +403,7 @@ class GameBox
   end
 
   def show_playing_field
-    clear_screen
+    io.clear_screen
     header
     5.times { puts }
     display_results
@@ -418,24 +411,24 @@ class GameBox
   end
 
   def display_updates
-    clear_screen
+    io.clear_screen
     show_playing_field
     no_updates = @updates.empty?
     until @updates.empty?
-      update(@updates.shift)
+      io.update(@updates.shift)
       sleep(@update_delay)
     end
-    wait_until_enter unless no_updates
+    io.wait_until_enter unless no_updates
   end
 
   def hello
-    clear_screen
+    io.clear_screen
     puts Box.new(4, 'Random Number Game', width, 9)
-    wait_until_enter
+    io.wait_until_enter
   end
 
   def goodbye
-    clear_screen
+    io.clear_screen
     puts Box.new(4, 'Thanks for playing!', width, 9)
   end
 
