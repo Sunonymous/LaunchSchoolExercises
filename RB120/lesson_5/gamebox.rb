@@ -370,7 +370,7 @@ class GameBox
   def default_settings
     settings.clear
     # add default settings below
-    settings.make(:dummy_setting, 'I serve no master', true, true)
+    # settings.make(:dummy_setting, 'I serve no master', true, true)
   end
 
   def end_game?

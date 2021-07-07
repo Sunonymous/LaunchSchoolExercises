@@ -8,7 +8,6 @@ class String
   def black;         "\e[30;47m#{self}\e[0m" end
 end
 
-
 require_relative 'gamebox.rb'
 
 # Inherits Reminder
@@ -19,19 +18,11 @@ require_relative 'gamebox.rb'
 #            choice_box(msg, wait=false)
 #            notice(msg)
 # Settings - get(name)
-#            set(name)
 #            make(name, display_name, value, range, display_vals=nil)
 # Input    - get_str_choice(msg, prompt=)
 #            get_choice(msg, options)
 #            replace_with_choice(msg, options)
 #            get_within_range(range, prompt=)
-# GameBox  -
-#            @width
-#            @end_conditions
-#            @winner
-#            @game_over
-#            @updates
-#            @update_delay
 
 start_width = 80
 SETTINGS = Settings.new(start_width)
@@ -328,7 +319,6 @@ class AI
 
   def random
     @chosen_space = @board.open_squares.sample
-    puts "i have chosen randomly square #{@chosen_space}" if DEBUG && @chosen_space
   end
 
   def block_opponent
@@ -338,12 +328,10 @@ class AI
       gap = op_reader.first_gap_in_line(line)
       @chosen_space = gap
     end
-    puts "I have decided to block my opponent at #{@chosen_space}" if DEBUG && @chosen_space
   end
 
   def take_center
     @chosen_space = 5 if @board.piece_at(5) == ' '
-    puts "I have taken the center square" if DEBUG && @chosen_space
   end
 
   def take_win
@@ -353,7 +341,6 @@ class AI
       gap = reader.first_gap_in_line(one_gap_line)
       @chosen_space = gap
     end
-    puts "I decided to win with square #{@chosen_space}" if DEBUG && @chosen_space
   end
 
   def find_best_move
@@ -367,12 +354,11 @@ class AI
     @chosen_space = open_squares.select do |square|
       ratings[open_squares.index(square)] == ratings.max
     end.sample
-    puts "I've considered all moves and chosen #{chosen_space}" if DEBUG && @chosen_space
   end
 end
 
 class TicTacToe < GameBox
-  attr_reader :board
+  attr_reader :board, :io
 
   def initialize(width)
     @width = width
@@ -380,6 +366,7 @@ class TicTacToe < GameBox
     @game_over = false
     @winner = nil
     @board = Board.new(width)
+    @io = InputOutput.new(width)
   end
 end
 
@@ -394,15 +381,19 @@ SETTINGS.make(:player_2_human, 'Player 2 is Human', false, true, Setting::YESNO)
 SETTINGS.make(:wins_needed, 'Wins Needed', 3, 1..50)
 
 loop do
+  width = SETTINGS.get(:console_width)
+  game = TicTacToe.new(width)
   # Main Menu
-  Display.notice("Welcome to...\u2317  Tic Tac Toe \u2317")
+  game.io.clear_screen
+  5.times { puts }
+  puts Box.new(1, ["   Welcome to...", "\u2317  Tic Tac Toe! \u2317"], width, 3)
+  5.times { puts }
   menu_options = %w(p play s settings q quit)
-  choice = get_choice('Please choose from the following:', menu_options)
+  choice = game.io.get_choice('Please choose from the following:', menu_options)
   case choice
   when 's', 'settings' then SETTINGS.menu
   when 'q', 'quit' then break
   when 'p', 'play'
-    game = TicTacToe.new(SETTINGS.get(:console_width))
     game.play
   end
 end
