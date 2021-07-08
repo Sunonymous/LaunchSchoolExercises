@@ -95,6 +95,10 @@ class InputOutput
     @width = width
   end
 
+  def change_width(new_width)
+    @width = new_width
+  end
+
   def clear_screen
     system('clear')
   end
@@ -196,6 +200,7 @@ class Settings
     @width = menu_width
     @header_spacing = 2
     @list_spacing = 2
+    make(:console_width, 'Game Width', 75, 50..100)
   end
 
   def get(name)
@@ -219,6 +224,8 @@ class Settings
 
       alter(get_from_id(choice))
     end
+    @width = get(:console_width)
+    io.change_width(@width)
   end
 
   def clear
@@ -250,9 +257,10 @@ class Settings
     catalog.each do |combo|
       id = combo.first
       setting = settings[combo.last]
-      puts "\t\t#{id}. #{setting}"
+      puts "#{id}. #{setting}".center(width)
     end
-    puts "\n\t\tType quit to return to the Main Menu." if offer_quit
+    puts
+    puts "Type quit to return to the Main Menu.".center(width) if offer_quit
   end
 
   def choose_setting_to_edit
