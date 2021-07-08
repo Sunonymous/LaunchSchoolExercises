@@ -115,10 +115,10 @@ class InputOutput
     wait_until_enter if wait
   end
 
-  def choice_box(message, options)
+  def choice_box(message, options, blank_options = false)
     option_str = options.join('/')
     box_width = [message.length, option_str.length].max
-    to_print = options.size > 1 ? [message, option_str] : message
+    to_print = blank_options ? message : [message, option_str]
     box = Box.new(2, to_print, box_width + 4)
     box.to_s.split("\n").each { |line| puts line.center(width, ' ') }
   end
@@ -131,7 +131,7 @@ class InputOutput
   end
 
   def get_str_choice(message, prompt = "\t>> ")
-    choice_box(message, [''])
+    choice_box(message, [''], true)
     loop do
       print(prompt)
       choice = gets.chomp
@@ -160,7 +160,7 @@ class InputOutput
   def get_within_range(val, range, prompt = "\t>> ")
     # function does not currently support floats
     msg = "Please provide a value between #{range.first} and #{range.last}."
-    choice_box(msg, [''])
+    choice_box(msg, [''], true)
     loop do
       print(prompt)
       choice = gets.chomp
@@ -378,38 +378,6 @@ class GameBox
     results.any?(true) ? @game_over = true : false
   end
 
-  def add_update(message)
-    @updates.push(message)
-  end
-
-  def header
-    messages = ['Random Number Game']
-    io.message(messages)
-  end
-
-  def roll_number
-    @rolled = rand(0..5)
-    add_update("I rolled a #{@rolled}.")
-    add_update('I have rolled the target number!') if @target == @rolled
-  end
-
-  def display_results
-    puts "The target number is #{@target}."
-    if @rolled.nil?
-      add_update('I have not rolled a number yet.')
-    else
-      puts "The number I have is currently #{@rolled}."
-    end
-  end
-
-  def show_playing_field
-    io.clear_screen
-    header
-    5.times { puts }
-    display_results
-    5.times { puts }
-  end
-
   def display_updates
     io.clear_screen
     show_playing_field
@@ -421,32 +389,65 @@ class GameBox
     io.wait_until_enter unless no_updates
   end
 
-  def hello
-    io.clear_screen
-    puts Box.new(4, 'Random Number Game', width, 9)
-    io.wait_until_enter
+  def add_update(message)
+    @updates.push(message)
   end
 
-  def goodbye
-    io.clear_screen
-    puts Box.new(4, 'Thanks for playing!', width, 9)
-  end
-
-  def game_logic
-    show_playing_field
-    roll_number
-  end
+  # def header
+    # messages = ['Random Number Game']
+    # io.message(messages)
+  # end
+#
+  # def roll_number
+    # @rolled = rand(0..5)
+    # add_update("I rolled a #{@rolled}.")
+    # add_update('I have rolled the target number!') if @target == @rolled
+  # end
+#
+  # def display_results
+    # puts "The target number is #{@target}."
+    # if @rolled.nil?
+      # add_update('I have not rolled a number yet.')
+    # else
+      # puts "The number I have is currently #{@rolled}."
+    # end
+  # end
+#
+  # def show_playing_field
+    # io.clear_screen
+    # header
+    # 5.times { puts }
+    # display_results
+    # 5.times { puts }
+  # end
+#
+#
+  # def hello
+    # io.clear_screen
+    # puts Box.new(4, 'Random Number Game', width, 9)
+    # io.wait_until_enter
+  # end
+#
+  # def goodbye
+    # io.clear_screen
+    # puts Box.new(4, 'Thanks for playing!', width, 9)
+  # end
+#
+  # def game_logic
+    # show_playing_field
+    # roll_number
+  # end
 
   def play
     reset_data
-    hello
+    # hello
     loop do
       break if end_game?
       game_logic
       add_update('The game is over!') if end_game?
       display_updates
     end
-    goodbye
+    # goodbye
   end
 end
 
