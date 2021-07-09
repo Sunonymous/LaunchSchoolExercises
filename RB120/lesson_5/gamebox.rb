@@ -5,7 +5,7 @@
 # TODO
 
 class Box
-  attr_reader :width
+  attr_reader :width, :lines
 
   # Key 0-Normal, 1-thick, 2-rounded corners, 3-dotted, 4-double
   @@parts = {
