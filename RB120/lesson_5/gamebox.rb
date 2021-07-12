@@ -1,13 +1,8 @@
-# GameBox, The Real
-
-# WATCHFOR
-# If too many settings appear, better to refactor to include categories.
-# TODO
+# GameBox
 
 class Box
   attr_reader :width, :lines
 
-  # Key 0-Normal, 1-thick, 2-rounded corners, 3-dotted, 4-double
   @@parts = {
     topl: ["\u250C", "\u250F", "\u256D", "\u250C", "\u2554"],
     top: ["\u2500", "\u2501", "\u2500", "\u2504", "\u2550"],
@@ -19,6 +14,7 @@ class Box
     space: ' '
   }
 
+  # Key 0-Normal, 1-thick, 2-rounded corners, 3-dotted, 4-double
   def initialize(box_type, msg, width, buffer=0)
     @box_type = box_type
     @text     = msg
@@ -31,37 +27,14 @@ class Box
     @lines.push(make_bottom)
   end
 
-  def topl
-    @@parts[:topl][@box_type]
-  end
-
-  def top
-    @@parts[:top] [@box_type]
-  end
-
-  def topr
-    @@parts[:topr][@box_type]
-  end
-
-  def side
-    @@parts[:side][@box_type]
-  end
-
-  def botl
-    @@parts[:botl][@box_type]
-  end
-
-  def bottom
-    @@parts[:bottom][@box_type]
-  end
-
-  def botr
-    @@parts[:botr][@box_type]
-  end
-
-  def space
-    @@parts[:space]
-  end
+  def topl;   @@parts[:topl][@box_type];    end
+  def top;    @@parts[:top] [@box_type];    end
+  def topr;   @@parts[:topr][@box_type];    end
+  def side;   @@parts[:side][@box_type];    end
+  def botl;   @@parts[:botl][@box_type];    end
+  def bottom; @@parts[:bottom][@box_type];  end
+  def botr;   @@parts[:botr][@box_type];    end
+  def space;  @@parts[:space];              end
 
   def make_top
     "#{topl}#{top * (width - 2)}#{topr}"
@@ -161,17 +134,14 @@ class InputOutput
     recast_to_original_type(options.first, selection)
   end
 
-  def get_within_range(val, range, prompt = "\t>> ")
-    # function does not currently support floats
+  def get_within_range(val, range, prompt = "\t>> ") # does not support floats
     msg = "Please provide a value between #{range.first} and #{range.last}."
     choice_box(msg, [''], true)
     loop do
       print(prompt)
-      choice = gets.chomp
-      cast_options = range.to_a.map(&:to_s)
-      if cast_options.include?(choice)
-        return recast_to_original_type(val, choice) 
-      end
+      word = gets.chomp
+      str_options = range.to_a.map(&:to_s)
+      return recast_to_original_type(val, word) if str_options.include?(word)
 
       puts 'Invalid response. Please try again.'
     end
@@ -190,7 +160,6 @@ class InputOutput
 end
 
 class Settings
-
   attr_reader :settings, :catalog, :width, :io
 
   def initialize(menu_width)
@@ -292,17 +261,20 @@ class Settings
     display_settings(false)
   end
 
+  # rubocop:disable Metrics/AbcSize
   def alter(setting)
     editing_screen
-    prompt = "\t\t(#{setting.name}) << "
+    text = "\t\t(#{setting.name}) << "
     case setting.range
-    when String then setting.set(io.get_str_choice('Enter a new value:', prompt))
-    when Range then setting.set(io.get_within_range(setting.value, setting.range, prompt))
+    when TrueClass then setting.set(!setting.value)
+    when String then setting.set(io.get_str_choice('Enter a new value:', text))
     when Array
       setting.set(get_from_options(setting.name, setting.display_values))
-    when TrueClass then setting.set(!setting.value)
+    when Range
+      setting.set(io.get_within_range(setting.value, setting.range, text))
     end
   end
+  # rubocop:enable Metrics/AbcSize
 end
 
 class Setting
@@ -377,7 +349,7 @@ class GameBox
 
   def default_settings
     settings.clear
-    # add default settings below
+    # add default settings below, eg.
     # settings.make(:dummy_setting, 'I serve no master', true, true)
   end
 
@@ -401,70 +373,13 @@ class GameBox
     @updates.push(message)
   end
 
-  # def header
-    # messages = ['Random Number Game']
-    # io.message(messages)
-  # end
-#
-  # def roll_number
-    # @rolled = rand(0..5)
-    # add_update("I rolled a #{@rolled}.")
-    # add_update('I have rolled the target number!') if @target == @rolled
-  # end
-#
-  # def display_results
-    # puts "The target number is #{@target}."
-    # if @rolled.nil?
-      # add_update('I have not rolled a number yet.')
-    # else
-      # puts "The number I have is currently #{@rolled}."
-    # end
-  # end
-#
-  # def show_playing_field
-    # io.clear_screen
-    # header
-    # 5.times { puts }
-    # display_results
-    # 5.times { puts }
-  # end
-#
-#
-  # def hello
-    # io.clear_screen
-    # puts Box.new(4, 'Random Number Game', width, 9)
-    # io.wait_until_enter
-  # end
-#
-  # def goodbye
-    # io.clear_screen
-    # puts Box.new(4, 'Thanks for playing!', width, 9)
-  # end
-#
-  # def game_logic
-    # show_playing_field
-    # roll_number
-  # end
-
   def play
     reset_data
-    # hello
     loop do
       break if end_game?
       game_logic
       add_update('The game is over!') if end_game?
       display_updates
     end
-    # goodbye
   end
-end
-
-debug = false
-
-if debug
-  # test things here
-  wide = 80
-  t = GameBox.new(wide)
-  t.settings.menu
-  t.play
 end

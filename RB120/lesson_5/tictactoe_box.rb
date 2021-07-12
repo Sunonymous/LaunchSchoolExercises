@@ -1,12 +1,9 @@
 # Tic Tac Toe, GameBox Edition
 
-# TODO
-# Shift Mode / Dynamic Name of Game
-
 require_relative 'gamebox.rb'
 
 start_width = 80
-SETTINGS = Settings.new(start_width) # singleton! yay!
+SETTINGS = Settings.new(start_width)
 
 class Square
   @@rows = {
@@ -134,6 +131,15 @@ class Board
     ''
   end
   # rubocop:enable Style/Semicolon
+
+  def shift_squares(amount, filter)
+    new_board = [nil, ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
+    1.upto(9) do |square|
+      new_board[square] =
+        filter.include?(square) ? ' ' : @data[square + amount]
+    end
+    @data = new_board
+  end
 
   def to_s
     print_board
@@ -296,7 +302,8 @@ class AI
   end
 
   def take_center
-    @chosen_space = 5 if @board.piece_at(5) == ' '
+    op_brd = BoardReader.new(@board, opponent)
+    @chosen_space = 5 if @board.piece_at(5) == ' ' && !op_brd.any_one_gap_lines?
   end
 
   def take_win
@@ -378,6 +385,7 @@ class TicTacToe < GameBox
   end
 
   def play
+    reset_shift_tracking
     super
     @winner = winner_name_from_piece
     add_update(win_string)
@@ -385,6 +393,11 @@ class TicTacToe < GameBox
   end
 
   private
+
+  def reset_shift_tracking
+    @moves_since_shift = 0
+    @shift_in = rand(3..SETTINGS.get(:turns_before_shift))
+  end
 
   def show_scores
     io.clear_screen
@@ -433,7 +446,21 @@ class TicTacToe < GameBox
     show_playing_field
     active_player_info('human') ? human_turn : auto_turn
     @state.update
+    @moves_since_shift += 1
     @active_player = next_player
+  end
+
+  def shift
+    return if end_game?
+    sleep(1.5)
+    idx = rand(0..3)
+    map_amount = [3, -1, -3, 1][idx]
+    ignore_list = [[7, 8, 9], [1, 4, 7], [1, 2, 3], [3, 6, 9]][idx]
+    direction = ["upwards", "to the right", "downwards", "to the left"][idx]
+    add_update("The board has shifted #{direction}!")
+    board.shift_squares(map_amount, ignore_list)
+    show_playing_field
+    reset_shift_tracking
   end
 
   def show_playing_field
@@ -445,15 +472,21 @@ class TicTacToe < GameBox
     piece = active_player_info('shape')
     spc = io.replace_with_choice('Choose a square to mark:', board.open_squares)
     board.mark_square(spc, piece)
+    show_playing_field
+    @state.update
+    shift if SETTINGS.get(:shift_mode) && @moves_since_shift > @shift_in
   end
 
   def auto_turn
     piece = active_player_info('shape')
     opponent_piece = SETTINGS.get("player_#{inactive_plyr_num}_shape".to_sym)
     difficulty = SETTINGS.get(:bot_difficulty)
-    sleep(0.5) # for the feels
+    sleep(0.75) # for the feels
     ai = AI.new(board, piece, opponent_piece, difficulty)
     board.mark_square(ai.chosen_space, piece)
+    show_playing_field
+    @state.update
+    shift if SETTINGS.get(:shift_mode) && @moves_since_shift > @shift_in
   end
 
   def new_tournament
@@ -489,7 +522,7 @@ def instructions(width)
   blanks(2)
   players = split_by_length("There are two players, each with a shape, traditionally", width - 4)
   players.each { |msg| puts msg.center(width) }
-  sleep(2)
+  sleep(2.5)
   puts
   s = Square.new
   puts Box.new(3, s.row['X'], 9).lines.map { |l| l.center(width) }.join("\n")
@@ -506,22 +539,28 @@ def instructions(width)
   blanks(2)
   puts Board.new(width)
   sleep(2)
-  player_moves = split_by_length('The players take turns putting their piece in an empty space on the grid. The goal is to get three of your own piece in a straight line horizontally, vertically, or diagonally.', width - 4)
+  player_moves = split_by_length('The two players take turns putting their piece in an empty space on the grid. The goal is to get three of your own piece in a straight line horizontally, vertically, or diagonally.', width - 4)
   puts Box.new(0, player_moves, width, 1)
-  # animate this
-  sleep(3)
-  puts
+  sleep(6)
   end_conditions = split_by_length('The game ends when the grid is full or a player has made a line!', width - 4)
   puts Box.new(1, end_conditions, width)
   puts
   puts "* * * * *".center(width)
   puts
+  sleep(3.5)
   shift_intro = split_by_length('Additionally, this program contains a version of the game called Shift Tac Toe, which can be enabled in the settings.', width - 4)
   puts Box.new(0, shift_intro, width)
-  sleep(3)
-  shift_instructions = split_by_length("The rules and goal of Shift Tac Toe are the same as the original game. The primary difference is that all tiles on the board are occasionally /shifted/ up, down, left, or right! This keeps the players constantly on alert\u2014I hope you're paying attention!", width - 4)
+  sleep(7)
+  shift_instructions = split_by_length("The rules and goal of Shift Tac Toe are the same as the original game. The primary difference is that all tiles on the board are occasionally shifted a single space up, down, left, or right (all tiles move in the same direction).", width - 4)
   puts Box.new(1, shift_instructions, width, 1)
+  puts
+  sleep(6)
+  shift_close = split_by_length("Any tiles that move past the edge of the grid are erased. This small difference can change the tides of the game in an instant\u2014I hope you're paying attention!", width - 4)
   sleep(4)
+  puts
+  puts Box.new(0, shift_close, width)
+  puts
+  sleep(3)
   puts Box.new(4, 'All clear? Let\'s get started!', width)
   InputOutput.new(width).wait_until_enter('(Press enter to return to the main menu.)')
 end
@@ -554,7 +593,8 @@ def main_menu(width)
   menu = InputOutput.new(width)
   menu.clear_screen
   5.times { puts }
-  puts Box.new(1, ["Welcome to", "\u2317  Tic Tac Toe \u2317"], width, 3)
+  name = SETTINGS.get(:shift_mode) ? 'Shift' : 'Tic'
+  puts Box.new(1, ["Welcome to", "\u2317  #{name} Tac Toe \u2317"], width, 3)
   5.times { puts }
   menu_options = %w(p play i instructions s settings q quit)
   menu.get_choice('Please choose from the following:', menu_options)
@@ -571,6 +611,8 @@ end
 yn = Setting::YESNO
 dlvl = ['Haybale', 'Distracted', 'Challenging']
 SETTINGS.make(:console_width, 'Game Width', 80, 50..100)
+SETTINGS.make(:shift_mode, 'Play Shift Tac Toe', false, true, yn)
+SETTINGS.make(:turns_before_shift, 'Max # of Turns Before Shift', 2, 2..5)
 SETTINGS.make(:number_blank_squares, 'Number Empty Squares', true, true, yn)
 SETTINGS.make(:player_1_starts, 'Player 1 Starts Tournament', true, true, yn)
 SETTINGS.make(:player_1_shape, 'Player 1 Shape', 'X', 'A'..'Z')
