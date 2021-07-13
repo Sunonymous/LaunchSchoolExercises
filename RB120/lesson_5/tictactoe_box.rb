@@ -2,8 +2,33 @@
 
 require_relative 'gamebox.rb'
 
-start_width = 80
-SETTINGS = Settings.new(start_width)
+class TTTSettings < Settings
+  def menu
+    cannot_be_equal = [[:player_1_name, :player_2_name],
+                       [:player_1_shape, :player_2_shape]]
+    loop do
+      super
+      valid_settings?(cannot_be_equal) ? break : next
+    end
+  end
+
+  def valid_settings?(settings)
+    settings.each do |pair|
+      if pair.map { |setting| SETTINGS.get(setting) }.uniq.size == 1
+        name = pair.map { |x| sym_to_str(x) }
+        error = "ERROR: Settings '#{name[0]}' & '#{name[1]}' must be unique!"
+        puts "\n", error.center(@width)
+        io.wait_until_enter
+        return false
+      end
+    end
+    true
+  end
+
+  def sym_to_str(name)
+    name.to_s.split('_').map(&:capitalize).join(' ')
+  end
+end
 
 class Square
   @@rows = {
@@ -396,7 +421,7 @@ class TicTacToe < GameBox
 
   def reset_shift_tracking
     @moves_since_shift = 0
-    @shift_in = rand(3..SETTINGS.get(:turns_before_shift))
+    @shift_in = rand(2..SETTINGS.get(:turns_before_shift))
   end
 
   def show_scores
@@ -608,11 +633,14 @@ def goodbye
   5.times { puts }
 end
 
+start_width = 80
+SETTINGS = TTTSettings.new(start_width)
+
 yn = Setting::YESNO
 dlvl = ['Haybale', 'Distracted', 'Challenging']
 SETTINGS.make(:console_width, 'Game Width', 80, 50..100)
 SETTINGS.make(:shift_mode, 'Play Shift Tac Toe', false, true, yn)
-SETTINGS.make(:turns_before_shift, 'Max # of Turns Before Shift', 2, 2..5)
+SETTINGS.make(:turns_before_shift, 'Max # of Turns Before Shift', 3, 2..5)
 SETTINGS.make(:number_blank_squares, 'Number Empty Squares', true, true, yn)
 SETTINGS.make(:player_1_starts, 'Player 1 Starts Tournament', true, true, yn)
 SETTINGS.make(:player_1_shape, 'Player 1 Shape', 'X', 'A'..'Z')
