@@ -57,7 +57,7 @@ class Diamond
     results = []
     idx = 0
     out_spc = (size - 1) / 2
-    results << "#{SPC * out_spc}#{LETTERS[idx]}#{SPC * out_spc}\n" if idx.zero?
+    results << "#{SPC * out_spc}#{LETTERS[idx]}#{SPC * out_spc}\n"
     while idx < upto
       out_spc -= 1
       idx += 1
