@@ -61,8 +61,9 @@ class Diamond
     while idx < upto
       out_spc -= 1
       idx += 1
-      in_spc = size - (out_spc * 2 + 2)
-      results << "#{SPC * out_spc}#{LETTERS[idx]}#{SPC * in_spc}#{LETTERS[idx]}#{SPC * out_spc}\n"
+      letter = LETTERS[idx]
+      in_spc = SPC * (size - (out_spc * 2 + 2))
+      results << "#{SPC * out_spc}#{letter}#{in_spc}#{letter}#{SPC * out_spc}\n"
     end
     results
   end
