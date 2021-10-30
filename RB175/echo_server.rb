@@ -23,15 +23,24 @@ loop do
   next if !request_line || request_line =~ /favicon/
   method, path, parameters = parse_request(request_line)
 
-  client.puts request_line
-  client.puts "The method is #{method}." if DEBUG
-  client.puts "The path is #{path}." if DEBUG
-  client.puts "The parameters are #{parameters}." if DEBUG
-  client.puts "The parsed parameters are #{parameters}." if DEBUG
+  client.puts 'HTTP/1.1 200 OK'
+  client.puts 'Content-Type: text/html'
+  client.puts
+  client.puts '<html>'
+  client.puts '<body>'
+  if DEBUG
+    client.puts "The method is #{method}." if DEBUG
+    client.puts "The path is #{path}." if DEBUG
+    client.puts "The parameters are #{parameters}." if DEBUG
+  end
+
+  client.puts '<h1>Dice Rolls!</h1>'
 
   number_of_rolls = parameters['rolls'].to_i || 1
   dice_sides      = parameters['sides'].to_i || 6
-  number_of_rolls.times { client.puts rand(dice_sides) + 1 }
+  number_of_rolls.times { client.puts "<p>#{rand(dice_sides) + 1}</p>" }
+  client.puts '</body>'
+  client.puts '</html>'
 
   client.close
 end
