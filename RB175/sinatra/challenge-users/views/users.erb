@@ -1,0 +1,10 @@
+<html>
+  <body>
+    <ul>
+      <% @users.keys.each do |user| %>
+        <% name = user.to_s %>
+        <li><a href="/user/<%= name %>"><%= name.capitalize %></a></li>
+      <% end %>
+    </ul>
+  </body>
+</html>

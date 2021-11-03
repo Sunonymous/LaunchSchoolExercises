@@ -1,0 +1,10 @@
+<html>
+  <body>
+    <h1>User Database</h2>
+    <%= yield %>
+  </body>
+  <footer>
+    <h5>Meta!</h5>
+    <p>My collection has <%= @users.keys.size %> users and <%= count_interests(@users) %> of their interests.</p>
+  </footer>
+</html>

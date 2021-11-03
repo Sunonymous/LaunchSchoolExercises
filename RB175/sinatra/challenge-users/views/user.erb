@@ -1,0 +1,17 @@
+<!-- # user.erb -->
+
+<h2>User - <%= @name.capitalize %></h2>
+<h3>Email Address: </h3><%= @email %>
+<h4>Interests!</h4>
+<% if @interests.empty? %>
+  <p>Sorry, this user has no interests to speak of. Or think of.</p>
+<% else %>
+  <p><%= @interests.join(', ') %>
+<% end %>
+<h3>Other Users:</h3>
+<% @users.keys.each do |user| %>
+  <% name = user.to_s %>
+  <% if name != @name %>
+    <a href="/user/<%= name %>"><%= user %></a>
+  <% end %>
+<% end %>
