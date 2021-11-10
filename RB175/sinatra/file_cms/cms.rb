@@ -4,6 +4,8 @@ require 'sinatra'
 require 'sinatra/reloader' if development?
 require 'tilt/erubis'
 configure { set :server, :webrick }
+enable :sessions
+set :session_secret, 'oogly-boogly-four'
 
 # CONSTANTS
 VALID_EXTENSIONS = %w[txt].freeze
@@ -47,7 +49,10 @@ end
 
 # open file
 get '/:filename' do |filename|
-  return 404 unless valid_filename?(filename)
+  unless valid_filename?(filename)
+    session[:message] = "The file '#{filename}' does not exist."
+    redirect '/'
+  end
 
   send_file("#{data}#{filename}", type: :text, status: 200)
 end

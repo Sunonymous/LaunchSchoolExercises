@@ -30,5 +30,15 @@ class CMSTest < Minitest::Test
     assert_equal('text/plain;charset=utf-8', last_response['Content-Type'])
     assert_includes(last_response.body, 'Looks good on you.')
   end
+
+  def test_valid_invalid_files
+    get '/history.txt'
+    assert_equal(200, last_response.status)
+    assert_includes(last_response.body, 'Earth')
+    get '/whoops.lol'
+    assert_equal(302, last_response.status)
+    get last_response['Location']
+    assert_includes(last_response.body, 'does not exist')
+  end
 end
 # rubocop:enable Style/Documentation
