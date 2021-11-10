@@ -1,0 +1,11 @@
+<ul id="lists">
+  <% sort_completed_lists(@lists).each do |list| %>
+    <a href="/list/<%== list[:id] %>">
+      <li class="<%== "complete" if all_tasks_completed?(list[:tasks]) %>"><h2><%= list[:name] %></h2><p><%= task_progress(list[:tasks]) %></p></li>
+    </a>
+  <% end %>
+</ul>
+
+<% content_for :header_links do %>
+  <a class="add" href="/lists/new">New List</a>
+<% end %>

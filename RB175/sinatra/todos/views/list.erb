@@ -1,0 +1,50 @@
+<% list = active_list(@active_id) %>
+
+<section id="todos" class="<%== "complete" if all_tasks_completed?(list[:tasks]) %>">
+  <header>
+    <h2><%== list[:name] %></h2>
+    <ul>
+      <li>
+        <form action="/list/<%= @active_id %>/complete-all" method="post">
+          <button class="check" type="submit">Complete All Tasks</button>
+        </form>
+      </li>
+      <li><a class="edit" href="/list/<%== list[:id] %>/rename">Rename List</a></li>
+    </ul>
+  </header>
+
+  <% content_for :header_links do %>
+    <a class="list" href="/lists">All Lists</a>
+  <% end %>
+
+  <!-- list items -->
+  <ul>
+    <% sort_completed_tasks(list).each do |task| %>
+      <li class="<%== "complete" if task[:completed] %>">
+        <form action="/list/<%= @active_id %>/complete-task/<%= task[:id] %>" method="post" class="check">
+          <input type="hidden" name="completed" value="<%= !task[:completed] %>" />
+          <button type="submit">Complete</button>
+        </form>
+        <h3><%== task[:name] %></h3>
+        <form action="/list/<%= @active_id %>/delete-task/<%= task[:id] %>" method="post" class="delete">
+          <button type="submit">Delete</button>
+        </form>
+      </li>
+    <% end %>
+  </ul>
+</section>
+
+<!-- add new items -->
+<form action="/list/<%= @active_id %>/tasks" method="post">
+  <dl>
+    <dt>
+      <label for="todo">Enter a new task:</label>
+    </dt>
+    <dd>
+    <input name="task" id="task" placeholder="Description of Task" type="text" value="<%= params[:task]%>">
+    </dd>
+  </dl>
+  <fieldset class="actions">
+    <input type="submit" value="Add">
+  </fieldset>
+</form>
