@@ -40,5 +40,13 @@ class CMSTest < Minitest::Test
     get last_response['Location']
     assert_includes(last_response.body, 'does not exist')
   end
+
+  def test_markdown_files
+    get '/study-music.md'
+    assert_equal(200, last_response.status)
+    assert_equal('text/html;charset=utf-8', last_response['Content-Type'])
+    assert_includes(last_response.body, 'h1')
+    assert_includes(last_response.body, 'Echoes')
+  end
 end
 # rubocop:enable Style/Documentation

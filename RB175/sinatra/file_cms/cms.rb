@@ -3,18 +3,24 @@
 require 'sinatra'
 require 'sinatra/reloader' if development?
 require 'tilt/erubis'
+require 'redcarpet'
 configure { set :server, :webrick }
 enable :sessions
 set :session_secret, 'oogly-boogly-four'
 
+### ## # ## ###
 # CONSTANTS
-VALID_EXTENSIONS = %w[txt].freeze
+### ## # ## ###
 
+VALID_EXTENSIONS = %w[txt md].freeze
+
+### ## # ## ###
 # METHODS
+### ## # ## ###
 
 # verifies that a filename passed as a url route is valid
 def valid_filename?(name_string)
-  name, extension = name_string.split('.')
+  name, extension = name_string.split('.').map(&:downcase)
   return false if name.nil? || extension.nil?
 
   return false unless VALID_EXTENSIONS.include?(extension)
@@ -24,14 +30,23 @@ def valid_filename?(name_string)
   true
 end
 
-# DATA
+def render_markdown(text)
+  markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
+  markdown.render(text)
+end
+
+### ## # ## ###
+### DATA
+### ## # ## ###
 
 # rubocop:disable Style/ExpandPathArguments
 root = File.expand_path('..', __FILE__)
 data = "#{root}/data/"
 # rubocop:enable Style/ExpandPathArguments
 
+### ## # ## ###
 # ROUTES
+### ## # ## ###
 
 not_found do
   "whatever it was you were looking for... you won't find it here."
@@ -54,5 +69,12 @@ get '/:filename' do |filename|
     redirect '/'
   end
 
-  send_file("#{data}#{filename}", type: :text, status: 200)
+  filepath = "#{data}#{filename}"
+
+  case filename.split('.').last.downcase
+  when 'txt'
+    send_file(filepath, type: :text, status: 200)
+  when 'md'
+    render_markdown(File.read(filepath))
+  end
 end
