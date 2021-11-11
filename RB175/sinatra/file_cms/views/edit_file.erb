@@ -1,0 +1,10 @@
+<!-- File Editor -->
+
+<h4>Edit Content of <%= @file %>:</h4>
+<form action="/<%= @file %>/submit" method="post">
+  <textarea id="file_content" name="file_content" rows="35" cols="150"><%= @file_content %>
+  </textarea>
+  <br>
+  <br>
+  <button name="save" type="submit">Save Changes</button>
+</form>

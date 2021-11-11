@@ -30,7 +30,28 @@ def valid_filename?(name_string)
   true
 end
 
-def render_markdown(text)
+# process which verifies an existing file and redirects home otherwise
+def verify_file_exists(filename, error_msg = 'Invalid file requested.')
+  return if valid_filename?(filename)
+
+  session[:message] = error_msg
+  redirect '/'
+end
+
+### RENDERING
+def render_content(filepath, extension)
+  case extension
+  when 'txt' then render_text(filepath)
+  when 'md' then render_markdown(filepath)
+  end
+end
+
+def render_text(filepath)
+  File.read(filepath)
+end
+
+def render_markdown(filepath)
+  text = File.read(filepath)
   markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
   markdown.render(text)
 end
@@ -40,8 +61,15 @@ end
 ### ## # ## ###
 
 # rubocop:disable Style/ExpandPathArguments
-root = File.expand_path('..', __FILE__)
-data = "#{root}/data/"
+def data_path
+  if ENV['RACK_ENV'] == 'test'
+    File.expand_path('../test/data', __FILE__)
+  else
+    File.expand_path('../data', __FILE__)
+  end
+end
+
+# root = File.expand_path('..', __FILE__) # Delete later if still unused.
 # rubocop:enable Style/ExpandPathArguments
 
 ### ## # ## ###
@@ -53,8 +81,8 @@ not_found do
 end
 
 before do
-  @files = Dir.entries(File.expand_path("#{root}/data/"))
-              .select { |file| File.file?(File.join(data, file)) }
+  pattern = File.join(data_path, '*')
+  @files  = Dir.glob(pattern).map { |path| File.basename(path) }
 end
 
 # root or index page
@@ -64,17 +92,32 @@ end
 
 # open file
 get '/:filename' do |filename|
-  unless valid_filename?(filename)
-    session[:message] = "The file '#{filename}' does not exist."
-    redirect '/'
-  end
+  file_error = "The file '#{filename}' does not exist."
+  verify_file_exists(filename, file_error)
 
-  filepath = "#{data}#{filename}"
+  filepath = File.join(data_path, filename)
+  extension = filename.split('.').last.downcase
+  render_content(filepath, extension)
+end
 
-  case filename.split('.').last.downcase
-  when 'txt'
-    send_file(filepath, type: :text, status: 200)
-  when 'md'
-    render_markdown(File.read(filepath))
-  end
+# edit file
+get '/:filename/edit' do |filename|
+  file_error = "Unable to edit non-existent file #{filename}."
+  verify_file_exists(filename, file_error)
+
+  filepath = File.join(data_path, filename)
+  @file = filename
+  @file_content = File.read(filepath)
+  erb(:edit_file)
+end
+
+# save edited file
+post '/:filename/submit' do |filename|
+  file_error = "Unable to save file #{filename}."
+  verify_file_exists(filename, file_error)
+
+  filepath = File.join(data_path, filename)
+  File.open(filepath, 'w+') { |f| f.write(params[:file_content]) }
+  session[:message] = "#{filename} has been updated."
+  redirect '/'
 end

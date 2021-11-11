@@ -1,4 +1,4 @@
-Links to music to review and appreciate!
+Hello. This is music for studying; links to music to review and appreciate!
 
 
 # Noises
@@ -16,3 +16,5 @@ Links to music to review and appreciate!
 [Foewi - Argonaut EP](https://foewi.bandcamp.com/album/argonaut-ep)
 [Elliot Yorke - EP 1](https://elliottyorke.bandcamp.com/album/ep-1)
 [Florian T M Zeisig - Music for Parents](https://metronrecords.bandcamp.com/album/music-for-parents)
+
+  
