@@ -30,6 +30,19 @@ def valid_filename?(name_string)
   true
 end
 
+# verifies a name passed to it for the purposes of file creation
+def error_message_new_file(filename)
+  return 'A filename must be included to create a file!' if filename.empty?
+
+  return 'A file with this name already exists!' if @files.include?(filename)
+
+  return 'Unable to create file without extension.' unless filename.include?('.')
+
+  extension = filename.split('.').last.downcase
+  return "Unable to create files of filetype '#{extension}'." unless
+    VALID_EXTENSIONS.include?(extension)
+end
+
 # process which verifies an existing file and redirects home otherwise
 def verify_file_exists(filename, error_msg = 'Invalid file requested.')
   return if valid_filename?(filename)
@@ -47,13 +60,15 @@ def render_content(filepath, extension)
 end
 
 def render_text(filepath)
-  File.read(filepath)
+  content = File.read(filepath)
+  headers['Content-Type'] = 'text/plain'
+  content
 end
 
 def render_markdown(filepath)
   text = File.read(filepath)
   markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
-  markdown.render(text)
+  erb(markdown.render(text))
 end
 
 ### ## # ## ###
@@ -87,7 +102,27 @@ end
 
 # root or index page
 get '/' do
-  erb(:index)
+  erb(:index, layout: :layout)
+end
+
+# create new document
+get '/new' do
+  erb(:new)
+end
+
+# add document to files
+post '/new' do
+  @new_filename = params[:filename]
+  error_msg = error_message_new_file(@new_filename)
+  if error_msg
+    status 422
+    session[:message] = error_msg
+    erb(:new)
+  else
+    File.open(File.join(data_path, @new_filename), 'w+')
+    session[:message] = "File '#{@new_filename}' created successfully."
+    redirect('/')
+  end
 end
 
 # open file
@@ -108,7 +143,7 @@ get '/:filename/edit' do |filename|
   filepath = File.join(data_path, filename)
   @file = filename
   @file_content = File.read(filepath)
-  erb(:edit_file)
+  erb(:edit_file, layout: :layout)
 end
 
 # save edited file

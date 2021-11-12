@@ -48,7 +48,7 @@ class CMSTest < Minitest::Test
     create_document('changes.txt', text)
     get '/changes.txt'
     assert_equal(200, last_response.status)
-    assert_equal('text/html;charset=utf-8', last_response['Content-Type'])
+    assert_equal('text/plain', last_response['Content-Type'])
     assert_includes(last_response.body, text)
   end
 
@@ -88,6 +88,37 @@ class CMSTest < Minitest::Test
     get('/about.txt')
     assert_equal(200, last_response.status)
     assert_includes(last_response.body, 'blast off!')
+  end
+
+  def test_new_document_creation
+    get('/new')
+    assert_equal(200, last_response.status)
+    assert_includes(last_response.body, 'Add a new document:')
+  end
+
+  def test_create_duplicate_document
+    create_document('hello.txt', 'hello!')
+    post('/new', filename: 'hello.txt')
+    assert_equal(422, last_response.status)
+    assert_includes(last_response.body, 'A file with this name already exists!')
+  end
+
+  def test_create_document_with_empty_filename
+    post('/new', filename: '')
+    assert_equal(422, last_response.status)
+    assert_includes(last_response.body, 'A filename must be included to create a file!')
+  end
+
+  def test_create_document_without_extension
+    post('/new', filename: 'hello')
+    assert_equal(422, last_response.status)
+    assert_includes(last_response.body, 'Unable to create file without extension.')
+  end
+
+  def test_create_document_with_bad_extension
+    post('/new', filename: 'hello.lol')
+    assert_equal(422, last_response.status)
+    assert_includes(last_response.body, "Unable to create files of filetype 'lol'.")
   end
 end
 # rubocop:enable Style/Documentation
