@@ -33,6 +33,7 @@ end
 
 get '/' do
   redirect '/users'
+  puts 'sup'
 end
 
 get '/users' do
