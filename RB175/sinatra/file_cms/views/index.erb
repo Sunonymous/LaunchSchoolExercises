@@ -3,8 +3,15 @@
     <li>
       <a href="/<%= file %>"><%= file %></a>
       <a href="/<%= file %>/edit">(edit)</a>
-      <form action="/<%= file %>/delete" method="post"><button type="submit">(delete)</button></form>
+      <form class="inline" action="/<%= file %>/delete" method="post"><button type="submit">(delete)</button></form>
     </li>
   <% end %>
 </ul>
 <a href="/new">Create New Document</a>
+<br><br>
+<% if @user %>
+  <p class="user-status">Currently signed in as <%= @user %></p>
+  <form action="/sign-out" method="post"><button>Sign Out</button></form>
+<% else %>
+  <a class="user-status" href="/login">SIGN IN</a>
+<% end %>

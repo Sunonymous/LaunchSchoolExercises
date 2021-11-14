@@ -9,6 +9,13 @@ enable :sessions
 set :session_secret, 'oogly-boogly-four'
 
 ### ## # ## ###
+# SESSION DATA
+### ## # ## ###
+# session[:message] contains a string which is displayed at the top of the page
+#   as a flash message. it is deleted upon presentation.
+# session[:user] contains the string for the active user of the application
+
+### ## # ## ###
 # CONSTANTS
 ### ## # ## ###
 
@@ -47,8 +54,21 @@ end
 def verify_file_exists(filename, error_msg = 'Invalid file requested.')
   return if valid_filename?(filename)
 
+  status 422
   session[:message] = error_msg
   redirect '/'
+end
+
+# verifies login credentials to user database
+def credential_check(db, username, password)
+  db.key?(username) && db[username] == password
+end
+
+def verify_user_logged_in
+  return unless session[:user].nil?
+
+  session[:message] = 'You must be signed in to do that.'
+  redirect('/')
 end
 
 ### RENDERING
@@ -75,6 +95,11 @@ end
 ### DATA
 ### ## # ## ###
 
+users = {
+  'admin' => 'secret',
+  'sunny' => 'sunshine'
+}
+
 # rubocop:disable Style/ExpandPathArguments
 def data_path
   if ENV['RACK_ENV'] == 'test'
@@ -96,6 +121,7 @@ not_found do
 end
 
 before do
+  @user = session[:user] if session[:user]
   pattern = File.join(data_path, '*')
   @files  = Dir.glob(pattern).map { |path| File.basename(path) }
 end
@@ -105,13 +131,45 @@ get '/' do
   erb(:index, layout: :layout)
 end
 
+# user sign in page
+get '/login' do
+  @username = params[:username] || ''
+  erb(:login)
+end
+
+# user login process
+post '/login' do
+  @username = params[:username].downcase
+  password = params[:password]
+  success = credential_check(users, @username, password)
+  if success
+    session[:message] = "Welcome back, #{@username}!"
+    session[:user] = @username
+    redirect('/')
+  else
+    status(422)
+    session[:message] = 'Invalid credentials.'
+    erb(:login)
+  end
+end
+
+# signs user out
+post '/sign-out' do
+  session[:user] = nil
+  @user = nil
+  session[:message] = 'You have been signed out.'
+  redirect '/'
+end
+
 # create new document
 get '/new' do
+  verify_user_logged_in
   erb(:new)
 end
 
 # add document to files
 post '/new' do
+  verify_user_logged_in
   @new_filename = params[:filename]
   error_msg = error_message_new_file(@new_filename)
   if error_msg
@@ -123,6 +181,18 @@ post '/new' do
     session[:message] = "File '#{@new_filename}' created successfully."
     redirect('/')
   end
+end
+
+# delete file from files
+post '/:filename/delete' do |filename|
+  file_error = "Unable to delete file #{filename}. Are you sure it exists?"
+  verify_file_exists(filename, file_error)
+  verify_user_logged_in
+
+  filepath = File.join(data_path, filename)
+  File.delete(filepath)
+  session[:message] = "File '#{filename}' deleted successfully."
+  redirect('/')
 end
 
 # open file
@@ -139,6 +209,7 @@ end
 get '/:filename/edit' do |filename|
   file_error = "Unable to edit non-existent file #{filename}."
   verify_file_exists(filename, file_error)
+  verify_user_logged_in
 
   filepath = File.join(data_path, filename)
   @file = filename
@@ -150,6 +221,7 @@ end
 post '/:filename/submit' do |filename|
   file_error = "Unable to save file #{filename}."
   verify_file_exists(filename, file_error)
+  verify_user_logged_in
 
   filepath = File.join(data_path, filename)
   File.open(filepath, 'w+') { |f| f.write(params[:file_content]) }

@@ -1,0 +1,8 @@
+<!-- login page -->
+<form action="/login" method="post">
+  <label for="username">Username:</label><input id="username" name="username" value="<%= @username || '' %>"/>
+  <br>
+  <label for="password">Password:</label><input id="password" name="password"/>
+  <br>
+  <button type="submit" style="margin-left: 12em">Submit</button><a style="margin-left: 1.5em" href="/">Cancel</a>
+</form>
