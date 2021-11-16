@@ -192,18 +192,18 @@ class CMSTest < Minitest::Test
   def test_user_login
     get('/')
     assert_includes(last_response.body, 'SIGN IN')
-    post('/login', username: 'admin', password: 'secret')
+    post('/login', username: 'dig', password: 'dug')
     assert_equal(302, last_response.status)
-    assert_equal('Welcome back, admin!', session[:message])
+    assert_equal('Welcome back, dig!', session[:message])
     get(last_response['Location'])
-    assert_includes(last_response.body, 'Currently signed in as admin')
+    assert_includes(last_response.body, 'Currently signed in as dig')
   end
 
   def test_user_sign_out
     get('/')
-    post('/login', username: 'admin', password: 'secret')
+    post('/login', username: 'carl', password: 'larc')
     get(last_response['Location'])
-    assert_includes(last_response.body, 'Welcome back, admin!')
+    assert_includes(last_response.body, 'Welcome back, carl!')
     post('/sign-out')
     assert_equal('You have been signed out.', session[:message])
     get(last_response['Location'])
@@ -211,6 +211,7 @@ class CMSTest < Minitest::Test
     assert_includes(last_response.body, 'SIGN IN')
   end
 end
+
 # rubocop:enable Style/Documentation
 # rubocop:enable Metrics/AbcSize
 # rubocop:enable Metrics/ClassLength

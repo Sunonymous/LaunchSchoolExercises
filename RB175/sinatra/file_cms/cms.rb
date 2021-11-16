@@ -4,6 +4,8 @@ require 'sinatra'
 require 'sinatra/reloader' if development?
 require 'tilt/erubis'
 require 'redcarpet'
+require 'yaml'
+# require 'bcrypt'
 configure { set :server, :webrick }
 enable :sessions
 set :session_secret, 'oogly-boogly-four'
@@ -95,12 +97,16 @@ end
 ### DATA
 ### ## # ## ###
 
-users = {
-  'admin' => 'secret',
-  'sunny' => 'sunshine'
-}
-
 # rubocop:disable Style/ExpandPathArguments
+# load users database from file
+def load_user_database
+  test_path = File.expand_path('../test/users.yml', __FILE__)
+  work_path = File.expand_path('../users.yml', __FILE__)
+  path = ENV['RACK_ENV'] == 'test' ? test_path : work_path
+  @users = YAML.load_file(path)
+end
+
+# determines path to data to be used, differentiating in test mode
 def data_path
   if ENV['RACK_ENV'] == 'test'
     File.expand_path('../test/data', __FILE__)
@@ -108,8 +114,6 @@ def data_path
     File.expand_path('../data', __FILE__)
   end
 end
-
-# root = File.expand_path('..', __FILE__) # Delete later if still unused.
 # rubocop:enable Style/ExpandPathArguments
 
 ### ## # ## ###
@@ -139,9 +143,10 @@ end
 
 # user login process
 post '/login' do
+  load_user_database
   @username = params[:username].downcase
   password = params[:password]
-  success = credential_check(users, @username, password)
+  success = credential_check(@users, @username, password)
   if success
     session[:message] = "Welcome back, #{@username}!"
     session[:user] = @username
