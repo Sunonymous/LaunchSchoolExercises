@@ -1,4 +1,4 @@
 {
-  admin: secret,
-  sunny: sunshine
+  admin: $2a$12$8CUN9xk25o.5/rHdDjuhg.dONqDfv21t13V4jFQtFdz.3kWjd7Ipu,
+  sunny: $2a$12$n3tmrc6b.kW7hpob1oKvSeLWwBplNrTbElH8d6AJfySZwcLCmAB5m
 }

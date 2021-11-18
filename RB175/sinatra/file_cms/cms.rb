@@ -5,7 +5,7 @@ require 'sinatra/reloader' if development?
 require 'tilt/erubis'
 require 'redcarpet'
 require 'yaml'
-# require 'bcrypt'
+require 'bcrypt'
 configure { set :server, :webrick }
 enable :sessions
 set :session_secret, 'oogly-boogly-four'
@@ -63,7 +63,7 @@ end
 
 # verifies login credentials to user database
 def credential_check(db, username, password)
-  db.key?(username) && db[username] == password
+  db.key?(username) && BCrypt::Password.new(db[username]) == password
 end
 
 def verify_user_logged_in
