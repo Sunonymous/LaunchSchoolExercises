@@ -24,13 +24,15 @@ ARG_ADVICE = {
   'amount' => "Amounts must be rounded to two decimal places (if not a whole number), and be between #{LOWEST_EXPENSE} and #{MAX_EXPENSE}.",
   'args'   => 'Incorrect number of arguments provided. Please review the command format.',
   'date'   => 'Dates are formatted as YYYY-MM-DD and must be equal to the current date or earlier. Please include only numbers and hyphens.',
-  'memo'   => 'A memo must be included for an expense to be valid. If your memo includes more than one word, enclose it between "".'
+  'memo'   => 'A memo must be included for an expense to be valid. If your memo includes more than one word, enclose it between "".',
+  'query'  => 'Include a query with your search. All expenses containing the query will be returned.'
 }
 
 class CLI
   def initialize(params)
     @v = Validator.new
     if params.empty? or !@v.valid_command?(params.first)
+      ARGV.clear
       abort_action
     else
       @db = ExpenseData.new
@@ -77,12 +79,22 @@ class CLI
     ARGFUL_COMMANDS.each  { |cmd| puts "#{cmd} #{CMD_INFO[cmd]}" }
   end
 
+  def display_expense_list(tup_list, header, with_key: true)
+    puts header + "\n\n"
+    display_key if with_key
+    puts '-' * (33 + get_length_of_longest_memo(tup_list))
+    tup_list.each do |exp_tup|
+      display_expense(exp_tup)
+    end
+  end
+
   def abort_action(failed_field = nil)
     # Runs if an invalid command is given or if a command fails validation.
-    puts ARGV.empty? ? GREETING : "Invalid input. Please try again.\n\n"
+    puts GREETING unless @command
+    puts "Invalid input. Please try again.\n\n"
     if @v.valid_command?(@command)
       puts "Command format:"
-      puts "#{@command} - #{CMD_INFO[@command]}"
+      puts "#{@command} #{CMD_INFO[@command]}"
       puts "\n#{ARG_ADVICE[failed_field]}" if failed_field
     else
       display_commands
@@ -91,16 +103,20 @@ class CLI
 
   def execute_list(_params)
     expenses = @db.query_all
-    puts "All Expenses\n\n"
-    display_key
-    puts '-' * (33 + get_length_of_longest_memo(expenses))
-    expenses.each do |exp_tup|
-      display_expense(exp_tup)
-    end
+    display_expense_list(expenses, 'All Expenses')
   end
 
   def execute_add(params)
     @db.add_expense(params)
+  end
+
+  def execute_search(params)
+    results = @db.search_expenses(params.first)
+    if results.values.empty?
+      puts '(No results.)'
+    else
+      display_expense_list(results, 'Search Results')
+    end
   end
 end
 
@@ -137,6 +153,12 @@ class Validator
 
     [true]
   end
+
+  def valid_search(params)
+    return [false, 'query'] if params.empty? or params.first.strip.empty?
+
+    [true]
+  end
 end
 
 class ExpenseData
@@ -157,6 +179,11 @@ class ExpenseData
   def query_all
     query = 'SELECT * FROM expenses ORDER BY created_on;'
     @db.exec(query)
+  end
+
+  def search_expenses(keyword)
+    query = "SELECT * FROM expenses WHERE lower(memo) ILIKE '%' || $1 || '%'"
+    @db.exec_params(query, [keyword])
   end
 end
 
