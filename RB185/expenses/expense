@@ -2,9 +2,6 @@
 
 # frozen_string_literal: true
 
-# TODO: move validation constants into validation class
-#       remove created_on's now() default in schema and refactor the add expense to use now() if now specified
-
 require 'pg'
 require 'io/console'
 
@@ -162,7 +159,11 @@ class Validator
     today = Date.today
     year  = date_bits.first.to_i
     month = date_bits[1].to_i
-    day   = date_bits.last.to_i
+    return false if month < 1 || month > 12
+
+    day = date_bits.last.to_i
+    return false if day <= 0 || day > Date.new(year, month, -1).day
+
     given_date = Date.new(year, month, day)
     date_str.match?(DATE_REGX) and given_date <= today
   end
@@ -218,10 +219,9 @@ class ExpenseData
   def add_expense(args)
     # "args" comes straight from CLI as [amount, memo, <date>]
     has_date = args.size == 3
-    fields = has_date ? '(amount, memo, created_on)'  : '(amount, memo)'
-    values = has_date ? "($1, $2, $3)" : "($1, $2)"
-    query  = "INSERT INTO expenses #{fields} VALUES #{values};"
-    has_date ? @db.exec_params(query, [args[0].to_f, args[1], args[2]]) : @db.exec_params(query, [args[0].to_f, args[1]])
+    args.push(Date.today) unless has_date
+    query = 'INSERT INTO expenses (amount, memo, created_on) VALUES ($1, $2, $3)'
+    @db.exec_params(query, [args[0].to_f, args[1], args[2]])
   end
 
   def query_all
