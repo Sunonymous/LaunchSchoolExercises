@@ -2,6 +2,8 @@
 
 # frozen_string_literal: true
 
+# TODO: move validation constants into validation class
+
 require 'pg'
 
 # Constants
@@ -25,110 +27,137 @@ ARG_ADVICE = {
   'memo'   => 'A memo must be included for an expense to be valid. If your memo includes more than one word, enclose it between "".'
 }
 
-def display_key
-  id     = 'id'.center(3)
-  date   = 'created_on'.split.first.center(12)
-  amount = 'amount'.rjust(14)
-  memo   = 'memo'
-  puts "#{id}|#{date}|#{amount}| #{memo}"
-end
+class CLI
+  def initialize(params)
+    @v = Validator.new
+    if params.empty? or !@v.valid_command?(params.first)
+      abort_action
+    else
+      @db = ExpenseData.new
+      @command = params.shift
+      @validation_needed = ARGFUL_COMMANDS.include?(@command)
+      params.empty? && @validation_needed ? abort_action('args') : process_args(params)
+    end
+  end
 
-# Exp_tup is a hash containing keys 'id', 'amount', 'memo', and 'created_on'
-def display_expense(exp_tup)
-  id     = exp_tup['id'].center(3)
-  date   = exp_tup['created_on'].split.first.center(12)
-  amount = exp_tup['amount'].rjust(14)
-  memo   = exp_tup['memo']
-  puts "#{id}|#{date}|#{amount}| #{memo}"
-end
+  def process_args(params)
+    # command was shifted out of params
+    results = @validation_needed ? @v.method("valid_#{@command}".to_sym).call(params) : [true]
+    if results.size == 1 and results.first == true # second check isn't really necessary, but... just in case!
+      method("execute_#{@command}".to_sym).call(params)
+    else
+      abort_action(results[1])
+    end
+  end
 
+  def display_key
+    id     = 'id'.center(3)
+    date   = 'created_on'.split.first.center(12)
+    amount = 'amount'.rjust(14)
+    memo   = 'memo'
+    puts "#{id}|#{date}|#{amount}| #{memo}"
+  end
 
-def get_length_of_longest_memo(tuple_array)
-  tuple_array.map { |tup| tup['memo'].size }.max
-end
+  # Exp_tup is a hash containing keys 'id', 'amount', 'memo', and 'created_on'
+  def display_expense(exp_tup)
+    id     = exp_tup['id'].center(3)
+    date   = exp_tup['created_on'].split.first.center(12)
+    amount = exp_tup['amount'].rjust(14)
+    memo   = exp_tup['memo']
+    puts "#{id}|#{date}|#{amount}| #{memo}"
+  end
 
+  def get_length_of_longest_memo(tuple_array)
+    tuple_array.map { |tup| tup['memo'].size }.max
+  end
 
-def display_commands
-  puts "Commands:\n"
-  ARGLESS_COMMANDS.each { |cmd| puts "#{cmd} #{CMD_INFO[cmd]}" }
-  ARGFUL_COMMANDS.each  { |cmd| puts "#{cmd} #{CMD_INFO[cmd]}" }
-end
+  def display_commands
+    puts "Commands:\n"
+    ARGLESS_COMMANDS.each { |cmd| puts "#{cmd} #{CMD_INFO[cmd]}" }
+    ARGFUL_COMMANDS.each  { |cmd| puts "#{cmd} #{CMD_INFO[cmd]}" }
+  end
 
-def abort_action(failed_field = nil)
-  # Runs if an invalid command is given or if a command fails validation.
-  puts ARGV.empty? ? GREETING : "Invalid input. Please try again.\n\n"
-  attempted_command = ARGV.first
-  if valid_command?(attempted_command)
-    puts "Command format:"
-    puts "#{attempted_command} - #{CMD_INFO[attempted_command]}"
-    puts "\n#{ARG_ADVICE[failed_field]}" if failed_field
-  else
-    display_commands
+  def abort_action(failed_field = nil)
+    # Runs if an invalid command is given or if a command fails validation.
+    puts ARGV.empty? ? GREETING : "Invalid input. Please try again.\n\n"
+    if @v.valid_command?(@command)
+      puts "Command format:"
+      puts "#{@command} - #{CMD_INFO[@command]}"
+      puts "\n#{ARG_ADVICE[failed_field]}" if failed_field
+    else
+      display_commands
+    end
+  end
+
+  def execute_list(_params)
+    expenses = @db.query_all
+    puts "All Expenses\n\n"
+    display_key
+    puts '-' * (33 + get_length_of_longest_memo(expenses))
+    expenses.each do |exp_tup|
+      display_expense(exp_tup)
+    end
+  end
+
+  def execute_add(params)
+    @db.add_expense(params)
   end
 end
 
-# Command Validation
-# If a validation command ends in `?`, it's a helper command used inside a primary validation command.
-# Primary commands should return an array with either a single element of true, or two elements: false and the field causing the failure.
-def valid_command?(cmd_str)
-  ARGLESS_COMMANDS.include?(cmd_str) or ARGFUL_COMMANDS.include?(cmd_str)
-end
+class Validator
+  def valid_command?(cmd_str)
+    ARGLESS_COMMANDS.include?(cmd_str) or ARGFUL_COMMANDS.include?(cmd_str)
+  end
 
-def valid_date?(date_str)
-  date_bits = date_str.split('-').map!(&:to_i)
-  return false if date_bits.size != 3 or date_bits.any?(0)
-  today = Date.today
-  year  = date_bits.first.to_i
-  month = date_bits[1].to_i
-  day   = date_bits.last.to_i
-  given_date = Date.new(year, month, day)
-  DATE_REGX.match?(date_str) and given_date <= today
-end
+  def valid_date?(date_str)
+    date_bits = date_str.split('-').map!(&:to_i)
+    return false if date_bits.size != 3 or date_bits.any?(0)
 
-def valid_add
-  input = ARGV[1..]
-  return [false, 'args']   unless [2, 3].include?(input.size)
-  amt   = input.first.to_f
-  memo  = input[1]
-  date  = input.size == 3 ? input.last : nil
-  return [false, 'amount'] unless amt > 0.00 and amt <= 9999.99
-  return [false, 'memo']   if memo.strip.empty?
-  return [false, 'date']   if date and !(valid_date?(date))
-  [true]
-end
+    today = Date.today
+    year  = date_bits.first.to_i
+    month = date_bits[1].to_i
+    day   = date_bits.last.to_i
+    given_date = Date.new(year, month, day)
+    date_str.match?(DATE_REGX) and given_date <= today
+  end
 
-# Execution Commands
-def execute_add
-  date_included = ARGV.size == 4
-  fields = date_included ? '(amount, memo, created_on)'  : '(amount, memo)'
-  values = date_included ? "($1, $2, $3)" : "($1, $2)"
-  query  = "INSERT INTO expenses #{fields} VALUES #{values};"
-  date_included ? DB.exec_params(query, [ARGV[1].to_f, ARGV[2], ARGV[3]]) : DB.exec_params(query, [ARGV[1].to_f, ARGV[2]])
-end
+  def amount_within_limits(amt)
+    amt > 0.00 and amt <= 9999.99
+  end
 
-def execute_list
-  query = 'SELECT * FROM expenses ORDER BY created_on;'
-  expenses = DB.exec(query)
-  puts "All Expenses\n\n"
-  display_key
-  puts '-' * (33 + get_length_of_longest_memo(expenses))
-  expenses.each do |exp_tup|
-    display_expense(exp_tup)
+  def valid_add(params)
+    return [false, 'args'] unless [2, 3].include?(params.size)
+
+    amt   = params.first.to_f
+    memo  = params[1]
+    date  = params.size == 3 ? params.last : nil
+    return [false, 'amount'] unless amount_within_limits(amt)
+    return [false, 'memo']   if memo.strip.empty?
+    return [false, 'date']   if date && !valid_date?(date)
+
+    [true]
   end
 end
 
-# MAIN
-DB = PG.connect(dbname: 'expense_tracker') # Connect to database
+class ExpenseData
+  def initialize
+    @db = PG.connect(dbname: 'expense_tracker') # Connect to database
+  end
 
-attempted_command = ARGV.first
-validation_needed = ARGFUL_COMMANDS.include?(attempted_command)
-if !valid_command?(attempted_command)
-  abort_action
-else
-  validation_results = validation_needed ? method("valid_#{ARGV.first}".to_sym).call : [true]
-  if validation_results.size == 1 and validation_results.first == true # second check isn't really necessary, but... just in case!
-    method("execute_#{ARGV.first}".to_sym).call
-  else
-    abort_action(validation_results[1])
+  def add_expense(args)
+    # "args" comes straight from CLI as [amount, memo, <date>]
+    p args
+    has_date = args.size == 3
+    fields = has_date ? '(amount, memo, created_on)'  : '(amount, memo)'
+    values = has_date ? "($1, $2, $3)" : "($1, $2)"
+    query  = "INSERT INTO expenses #{fields} VALUES #{values};"
+    has_date ? @db.exec_params(query, [args[0].to_f, args[1], args[2]]) : @db.exec_params(query, [args[0].to_f, args[1]])
+  end
+
+  def query_all
+    query = 'SELECT * FROM expenses ORDER BY created_on;'
+    @db.exec(query)
   end
 end
+
+CLI.new(ARGV)
