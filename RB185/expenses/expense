@@ -200,6 +200,15 @@ end
 class ExpenseData
   def initialize
     @db = PG.connect(dbname: 'expense_tracker') # Connect to database
+    setup_schema
+  end
+
+  def setup_schema
+    query = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'expenses';"
+    table_does_not_exist = @db.exec(query)
+                              .values.flatten.first == '0'
+    sql = File.read('schema.sql')
+    @db.exec(sql) if table_does_not_exist
   end
 
   def all_expense_ids
