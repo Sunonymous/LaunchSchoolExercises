@@ -3,8 +3,10 @@
 # frozen_string_literal: true
 
 # TODO: move validation constants into validation class
+#       remove created_on's now() default in schema and refactor the add expense to use now() if now specified
 
 require 'pg'
+require 'io/console'
 
 # Constants
 GREETING = "An expense tracking program.\n\n"
@@ -25,14 +27,15 @@ ARG_ADVICE = {
   'args'   => 'Incorrect number of arguments provided. Please review the command format.',
   'date'   => 'Dates are formatted as YYYY-MM-DD and must be equal to the current date or earlier. Please include only numbers and hyphens.',
   'memo'   => 'A memo must be included for an expense to be valid. If your memo includes more than one word, enclose it between "".',
-  'query'  => 'Include a query with your search. All expenses containing the query will be returned.'
+  'query'  => 'Include a query with your search. All expenses containing the query will be returned.',
+  'id'     => 'There is no expense with the ID given. An id must be an integer.'
 }
 
 class CLI
   def initialize(params)
     @v = Validator.new
     if params.empty? or !@v.valid_command?(params.first)
-      ARGV.clear
+      ARGV.clear # only useful for second test case
       abort_action
     else
       @db = ExpenseData.new
@@ -57,7 +60,7 @@ class CLI
     date   = 'created_on'.split.first.center(12)
     amount = 'amount'.rjust(14)
     memo   = 'memo'
-    puts "#{id}|#{date}|#{amount}| #{memo}"
+    puts "#{id}|#{date}|#{amount} | #{memo}"
   end
 
   # Exp_tup is a hash containing keys 'id', 'amount', 'memo', and 'created_on'
@@ -66,7 +69,7 @@ class CLI
     date   = exp_tup['created_on'].split.first.center(12)
     amount = exp_tup['amount'].rjust(14)
     memo   = exp_tup['memo']
-    puts "#{id}|#{date}|#{amount}| #{memo}"
+    puts "#{id}|#{date}|#{amount} | #{memo}"
   end
 
   def get_length_of_longest_memo(tuple_array)
@@ -80,12 +83,16 @@ class CLI
   end
 
   def display_expense_list(tup_list, header, with_key: true)
-    puts header + "\n\n"
+    puts header + " (#{tup_list.values.size.to_s})" "\n\n"
     display_key if with_key
-    puts '-' * (33 + get_length_of_longest_memo(tup_list))
+    list_width = 33 + get_length_of_longest_memo(tup_list)
+    puts '-' * list_width
     tup_list.each do |exp_tup|
       display_expense(exp_tup)
     end
+    puts '-' * list_width
+    sum = tup_list.map { |exp| exp['amount'].to_f }.sum
+    puts "Total#{('%.2f' % sum).to_s.rjust(26)}" # this is super ugly
   end
 
   def abort_action(failed_field = nil)
@@ -103,7 +110,11 @@ class CLI
 
   def execute_list(_params)
     expenses = @db.query_all
-    display_expense_list(expenses, 'All Expenses')
+    if expenses.values.empty?
+      puts "(No expenses to display. Congratulations!)"
+    else
+      display_expense_list(expenses, 'All Expenses')
+    end
   end
 
   def execute_add(params)
@@ -116,6 +127,25 @@ class CLI
       puts '(No results.)'
     else
       display_expense_list(results, 'Search Results')
+    end
+  end
+
+  def execute_delete(params)
+    ids = @db.all_expense_ids
+    unless !ids.include?(params.first)
+      @db.delete_expense(params.first)
+    else
+      puts "No expense with id #{params.first} located."
+    end
+  end
+
+  def execute_clear(_params)
+    puts "Are you sure you wish to clear all expenses? (y/n)"
+    answer = $stdin.getch()
+    if answer.downcase == 'y'
+      @db.delete_all
+    else
+      puts 'Clearing aborted.'
     end
   end
 end
@@ -159,6 +189,12 @@ class Validator
 
     [true]
   end
+
+  def valid_delete(params)
+    return [false, 'id'] if params.empty? || params.first.to_i == 0 # fortunately pg starts ids at 1 by default!
+
+    [true]
+  end
 end
 
 class ExpenseData
@@ -166,9 +202,12 @@ class ExpenseData
     @db = PG.connect(dbname: 'expense_tracker') # Connect to database
   end
 
+  def all_expense_ids
+    @db.exec('SELECT id FROM expenses;').values.flatten
+  end
+
   def add_expense(args)
     # "args" comes straight from CLI as [amount, memo, <date>]
-    p args
     has_date = args.size == 3
     fields = has_date ? '(amount, memo, created_on)'  : '(amount, memo)'
     values = has_date ? "($1, $2, $3)" : "($1, $2)"
@@ -184,6 +223,15 @@ class ExpenseData
   def search_expenses(keyword)
     query = "SELECT * FROM expenses WHERE lower(memo) ILIKE '%' || $1 || '%'"
     @db.exec_params(query, [keyword])
+  end
+
+  def delete_expense(id)
+    query = "DELETE FROM expenses WHERE id = $1"
+    @db.exec_params(query, [id])
+  end
+
+  def delete_all
+    @db.exec('DELETE FROM expenses;')
   end
 end
 
