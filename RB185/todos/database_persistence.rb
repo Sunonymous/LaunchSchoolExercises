@@ -3,16 +3,28 @@
 require 'pg'
 
 class DatabasePersistence
-  def initialize
+  def initialize(logger)
     @db = PG.connect(dbname: 'todos')
+    @logger = logger
+  end
+
+  def query(statement, *params)
+    @logger.info "Executing ~> '#{query}': #{params}"    puts
+    @db.exec_params(statement, params)
   end
 
   def find_list(id)
     # @session[:lists].find { |list| list[:id] == id }
+    query = 'SELECT * FROM lists WHERE id = $1'
+    result = query(query, id)
+
+    tup = result.first
+    { id: tup['id'], name: tup['name'], todos: [] }
   end
 
   def all_lists
-    result = @db.exec('SELECT * FROM lists;')
+    query  = 'SELECT * FROM lists;'
+    result = @db.exec(query)
     result.map do |tup|
       { id: tup['id'], name: tup['name'], todos: [] }
     end
