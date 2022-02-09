@@ -14,7 +14,6 @@ class DatabasePersistence
   end
 
   def find_list(id)
-    # @session[:lists].find { |list| list[:id] == id }
     sql = 'SELECT * FROM lists WHERE id = $1'
     result = query(sql, id)
     tup = result.first
@@ -32,6 +31,8 @@ class DatabasePersistence
   def create_new_list(list_name)
     # id = next_element_id(@session[:lists])
     # @session[:lists] << { id: id, name: list_name, todos: [] }
+    sql = 'INSERT INTO lists (name) VALUES ($1)'
+    @db.exec_params(sql, [list_name])
   end
 
   def delete_list(id)
