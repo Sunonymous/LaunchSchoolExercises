@@ -9,24 +9,23 @@ class DatabasePersistence
   end
 
   def query(statement, *params)
-    @logger.info "Executing ~> '#{query}': #{params}"    puts
+    @logger.info "Executing ~> '#{statement}': #{params}"
     @db.exec_params(statement, params)
   end
 
   def find_list(id)
     # @session[:lists].find { |list| list[:id] == id }
-    query = 'SELECT * FROM lists WHERE id = $1'
-    result = query(query, id)
-
+    sql = 'SELECT * FROM lists WHERE id = $1'
+    result = query(sql, id)
     tup = result.first
-    { id: tup['id'], name: tup['name'], todos: [] }
+    { id: tup['id'], name: tup['name'], todos: todos_in_list(tup['id']) }
   end
 
   def all_lists
-    query  = 'SELECT * FROM lists;'
-    result = @db.exec(query)
+    sql  = 'SELECT * FROM lists;'
+    result = query(sql)
     result.map do |tup|
-      { id: tup['id'], name: tup['name'], todos: [] }
+      { id: tup['id'], name: tup['name'], todos: todos_in_list(tup['id']) }
     end
   end
 
@@ -66,5 +65,13 @@ class DatabasePersistence
     # list[:todos].each do |todo|
     #   todo[:completed] = true
     # end
+  end
+
+  private
+
+  def todos_in_list(list_id)
+    sql = 'SELECT * FROM todos WHERE list_id = $1'
+    result = query(sql, list_id)
+    result.map { |tup| { id: tup['id'], name: tup['name'], completed: tup['completed'] == 't' } }
   end
 end
