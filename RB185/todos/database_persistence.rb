@@ -42,8 +42,8 @@ class DatabasePersistence
   end
 
   def update_list_name(id, new_name)
-    # list = find_list(id)
-    # list[:name] = new_name
+    sql = 'UPDATE lists SET name = $1 WHERE id = $2'
+    query(sql, new_name, id)
   end
 
   def create_new_todo(list_id, todo_name)
