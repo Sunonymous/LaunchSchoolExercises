@@ -1,1 +1,4 @@
 Sinatra app for Todo webapp
+
+Author's note: I run into an incredible amount of problems assumingly caused by different versions of Ruby and/or the gems included in this project.
+Because this is annoying, the original repository does not include the changes required to deploy the application. Thanks for understanding.
