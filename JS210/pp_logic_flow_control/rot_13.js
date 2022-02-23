@@ -1,6 +1,6 @@
 // Rot 13 Cipher
 
-// Given a string, rotate it thirteen characters forward in the alphabet.
+// Given a string, rotate each alphabetic character thirteen positions forward in the (wrapped) alphabet.
 
 const START_INDEXES = {
   upper: 'A'.charCodeAt(0),
