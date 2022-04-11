@@ -3,8 +3,7 @@
 const SENTENCE_TERMINATORS = /[\.\!\?]+\s*/;
 
 const longerOfTwo          = (a, b) => a.length > b.length ? a : b;
-const validWord            = (str)  => str.match(/^\w+$/);
-const lettersAndWhitespace = (c) => c.match(/[a-z\s]/i);
+const lettersAndWhitespace = (c) => c.match(/[a-z\s\-]/i);
 const filterString         = (string, func) => string.split('').filter(func).join('');
 
 // via this methodology, hyphenated words are considered a single word (because the hyphen is lost)
@@ -16,7 +15,7 @@ const longestSentence = (text) => {
 
   // the or branch handles the case of when the final terminator of the original string is missing
   const terminator      = text[text.indexOf(longestSentence) + longestSentence.length] || '.';
-  const words           = stripString(longestSentence).split(/\s+/).filter(validWord);
+  const words           = stripString(longestSentence).split(/\s+/);
   console.log(longestSentence + terminator + '\n');
   console.log(`The longest sentence has ${words.length} words.\n`);
 }
@@ -56,9 +55,10 @@ longestSentence(longText);
 // console output
 // It is rather for us to be here dedicated to the great task remaining before us -- that from these honored dead we take increased devotion to that cause for which they gave the last full measure of devotion -- that we here highly resolve that these dead shall not have died in vain -- that this nation, under God, shall have a new birth of freedom -- and that government of the people, by the people, for the people, shall not perish from the earth.
 //
-// The longest sentence has 82 words. ("--" are not words!)
+// The longest sentence has 86 words.
+// for the record... "--" are not words!
 
-// Assuming the last sentence is removed:
+// Assuming that last sentence is removed:
 // console output
 // Four score and seven years ago our fathers brought forth on this continent a new nation, conceived in liberty, and dedicated to the proposition that all men are created equal.
 //
