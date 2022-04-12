@@ -3,11 +3,11 @@
 const SENTENCE_TERMINATORS = /[\.\!\?]+\s*/;
 
 const longerOfTwo          = (a, b) => a.length > b.length ? a : b;
-const lettersAndWhitespace = (c) => c.match(/[a-z\s\-]/i);
+const wordsAndWhitespace = (c) => c.match(/[a-z\s\-]/i);
 const filterString         = (string, func) => string.split('').filter(func).join('');
 
 // via this methodology, hyphenated words are considered a single word (because the hyphen is lost)
-const stripString          = (string) => filterString(string, lettersAndWhitespace);
+const stripString          = (string) => filterString(string, wordsAndWhitespace).trim();
 
 const longestSentence = (text) => {
   const sentences       = text.split(SENTENCE_TERMINATORS);
