@@ -53,8 +53,6 @@ const longText = 'Four score and seven years ago our fathers brought forth' +
   ' earth.';
 
 longestSentence(longText);
-longestSentence("To be or not to be? The brown fox is superlative!");
-longestSentence('One two three. Wait two. One. No more no more for you. No no no no no not quite.')
 
 // console output
 // It is rather for us to be here dedicated to the great task remaining before us -- that from these honored dead we take increased devotion to that cause for which they gave the last full measure of devotion -- that we here highly resolve that these dead shall not have died in vain -- that this nation, under God, shall have a new birth of freedom -- and that government of the people, by the people, for the people, shall not perish from the earth.
