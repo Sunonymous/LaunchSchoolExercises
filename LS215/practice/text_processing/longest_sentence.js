@@ -2,22 +2,24 @@
 
 const SENTENCE_TERMINATORS = /[\.\!\?]+\s*/;
 
-const longerOfTwo          = (a, b) => a.length > b.length ? a : b;
-const wordsAndWhitespace = (c) => c.match(/[a-z\s\-]/i);
+const wordsAndWhitespace   = (c)      => c.match(/[a-z\s\-]/i);
 const filterString         = (string, func) => string.split('').filter(func).join('');
+const sentenceToWords      = (string) => stripString(string).split(/\s+/);
+const wordCount            = (string) => sentenceToWords(string).length;
+const moreWordsThan        = (a, b)   => wordCount(a) > wordCount(b) ? a : b;
 
 // via this methodology, hyphenated words are considered a single word (because the hyphen is lost)
 const stripString          = (string) => filterString(string, wordsAndWhitespace).trim();
 
 const longestSentence = (text) => {
   const sentences       = text.split(SENTENCE_TERMINATORS);
-  const longestSentence = sentences.reduce(longerOfTwo);
+  const longestSentence = sentences.reduce(moreWordsThan);
+  const numOfWords      = wordCount(longestSentence);
 
   // the or branch handles the case of when the final terminator of the original string is missing
   const terminator      = text[text.indexOf(longestSentence) + longestSentence.length] || '.';
-  const words           = stripString(longestSentence).split(/\s+/);
   console.log(longestSentence + terminator + '\n');
-  console.log(`The longest sentence has ${words.length} words.\n`);
+  console.log(`The longest sentence has ${numOfWords} word(s).\n`);
 }
 
 const longText = 'Four score and seven years ago our fathers brought forth' +
@@ -51,6 +53,8 @@ const longText = 'Four score and seven years ago our fathers brought forth' +
   ' earth.';
 
 longestSentence(longText);
+longestSentence("To be or not to be? The brown fox is superlative!");
+longestSentence('One two three. Wait two. One. No more no more for you. No no no no no not quite.')
 
 // console output
 // It is rather for us to be here dedicated to the great task remaining before us -- that from these honored dead we take increased devotion to that cause for which they gave the last full measure of devotion -- that we here highly resolve that these dead shall not have died in vain -- that this nation, under God, shall have a new birth of freedom -- and that government of the people, by the people, for the people, shall not perish from the earth.
