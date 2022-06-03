@@ -97,7 +97,7 @@ function minilang(tokenString) {
     '%':  (a, b) => a % b,
   }
 
-  const reRegister    = (f) => register = f(register, stack.pop());
+  const reRegister = (f) => register = f(register, stack.pop());
 
   const TOKENS = {
     PUSH:      () => stack.push(register),

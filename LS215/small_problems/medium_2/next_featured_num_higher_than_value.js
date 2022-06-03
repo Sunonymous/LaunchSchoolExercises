@@ -71,19 +71,21 @@ const DEBUG = false;
 const LARGEST_FEATURED_NUMBER = 9876543201;
 const NO_MORE_FNS      = 'There is no number that fulfills the requirements.';
 const range            = (len, from) => [...Array(len).keys()].map((n) => n + from);
-const log              =   (val) => console.log(val);
-const isOdd            =     (n) => n % 2 !== 0;
-const divisibleBy7     =     (n) => n % 7 === 0;
-const isFeaturedNumber =     (n) => isOdd(n) && divisibleBy7(n) && noRepeatedDigits(n);
+const log              =       (val) => console.log(val);
+const isOdd            =         (n) => n % 2 !== 0;
+const divisibleBy7     =         (n) => n % 7 === 0;
+const isFeaturedNumber =         (n) => isOdd(n) && divisibleBy7(n) && noRepeatedDigits(n);
+
 const unique = (arr) => {
   const result = [];
   arr.forEach((em) => {
     if (!result.includes(em)) result.push(em);
   });
+
   return result;
 }
 
-const noRepeatedDigits =     (n) => {
+const noRepeatedDigits = (n) => {
   const digits = String(n).split('');
   return unique(digits).length === digits.length;
 }

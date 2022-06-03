@@ -130,8 +130,9 @@ if (DEBUG) {
   t.addTest(bubbleSort, [1, 2, 4, 6, 7], [6, 2, 7, 1, 4]);
   t.addTest(bubbleSort, ["Alice", "Bonnie", "Kim", "Pete", "Rachel", "Sue", "Tyler"], ['Sue', 'Pete', 'Alice', 'Tyler', 'Rachel', 'Kim', 'Bonnie']);
   t.addTest(bubbleSort, [9, 99, 999, 9999], [99, 9999, 9, 999]);
-  t.addTest(bubbleSort, ['A bird ', 'in the hand ', 'is better ', 'than ice cream. ', 'Preferably living! '], ['Preferably living! ', 'than ice cream. ', 'is better ', 'A bird ', 'in the hand ']);
+  t.addTest(bubbleSort, ['A bird ', 'Preferably living! ', 'in the hand ', 'is better ', 'than ice cream. '], ['Preferably living! ', 'than ice cream. ', 'is better ', 'A bird ', 'in the hand ']);
 }
 
 // Tests
 t.runSuite();
+console.log(bubbleSort(['Preferably living! ', 'than ice cream. ', 'is better ', 'A bird ', 'in the hand ']));

@@ -41,12 +41,14 @@ t.addTest(letterPercentages, {lowercase: 0.00, uppercase: 100.00, neither: 0.00}
 
 Data Structure-->
 We will be returning an object at the end of the function.
+
 Algorithm-->
-Create the case ratio object to modify and return.
+Create the case ratio object to mutate and return.
 Create a variable, `totalChars` to track the character count.
 Split the given string into characters and iterate over it.
 On each character, increment `totalChars` and the property of the case of the character in the ratio obj.
 Return mapping over the values in the character case obj calculating their percentage, then cast to String.
+
 Functions-->
 [✓] incrementProperty(obj, prop)
 ----- Increments the value at the property `prop`, or, if it does not exist, sets it to 1.
