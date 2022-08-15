@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>JS230 Booking App Exercise</title>
+    <meta charset="utf-8" />
+    <style>
+      button {
+          width: 150px;
+          height: 50px;
+          background-color: lightblue;
+          color: white;
+          border-radius: 15px;
+          border: 1px solid blue;
+          font-weight: bold;
+          font-size: 1.25rem;
+          filter: drop-shadow(2px 2px 1px #4444dd);
+      }
+      .addNewSchedule {
+          background-color: lightblue;
+          color: white;
+          border: 1px solid blue;
+      }
+
+      .submitSchedules {
+          background-color: red;
+          color: white;
+          border: 1px solid darkred;
+      }
+
+      .scheduleSelectors {
+          //border: 1px solid black;
+          box-sizing: border-box;
+          width: 450px;
+          min-height: 250px;
+          padding: 30px 30px;
+          margin: 10px 10px;
+      }
+
+      .scheduleForm {
+          margin: 10px 10px;
+      }
+
+       select, input {
+          width: 100%;
+          padding: 5px 0;
+          margin: 15px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Exercise: Adding Schedules</h1>
+    </header>
+    <article>
+      <p>Goal: Add new schedules.</p>
+      <p>Details:</p>
+      <ul>
+        <li>There's a button to add a new schedule selection form.</li>
+        <li>Multiple submissions can be made at once, though they <em>all</em> must be filled out correctly for any to be submitted.</li>
+        <li>Forms are cleared upon successful submission.</li>
+      </ul>
+      <h3>Results</h3>
+      <button class="addNewSchedule" type="button">
+        Add More Schedules
+      </button>
+      <div class="scheduleSelectors">
+        <form class="scheduleForm" method="POST" action="http://localhost:3000/api/schedules">
+          <fieldset>
+            <legend>Schedule 1</legend>
+          <label for="staffName">Staff Name:</label>
+          <select name="staffNames">
+          </select>
+          <br />
+          <label for="date">Date:</label>
+          <input type="text" name="date" placeholder="mm-dd-yyyy" required>
+          <br />
+          <label for="time">Time:</label>
+          <input type="text" name="time" placeholder="hh:mm" required>
+          <!--pattern="/^[01]\d:[012345]\d$/"-->
+          </fieldset>
+        </form>
+      </div>
+      <button class="submitSchedules" type="button">
+        Submit
+      </button>
+      <p id="results"></p>
+    </article>
+    <script type="text/javascript" src="/javascripts/adding_schedules.js"></script>
+  </body>
+</html>

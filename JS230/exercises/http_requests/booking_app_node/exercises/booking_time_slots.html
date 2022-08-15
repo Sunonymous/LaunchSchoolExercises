@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>JS230 Booking App Exercise</title>
+    <meta charset="utf-8" />
+    <style>
+      .hidden {
+          display: none;
+      }
+
+      form {
+          width: 450px;
+          margin: 25px 25px;
+          padding: 33px;
+          border: 1px solid gray;
+          border-radius: 10px;
+          box-shadow: 3px 3px 5px gray;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Exercise: Booking Time Slots</h1>
+    </header>
+    <article>
+      <p><em>Goal:</em> Provide a way for students to book time slots, and for new students to be created.</p>
+      <p><em>Details:</em></p>
+      <ul>
+        <li>Students may click the dropdown menu to load available schedules.</li>
+        <li>Students enter their email address to connect the schedule with themselves.</li>
+        <li>If the email provided is unregistered to any student, another menu appears to create a new student.</li>
+        <li>Use the booking sequence provided by the server response to create the student.</li>
+        <li>Two alerts appear upon success: one if a student is created, and another if a schedule is booked.</li>
+      </ul>
+      <hr />
+      <h2>Result:</h2>
+      <!-- Beginning of exercise! -->
+      <h2>Schedules</h2>
+        <form method="POST" id="bookScheduleForm" action="http://localhost:3000/api/bookings">
+          <label for="schedule_select">Please select one schedule:</label>
+          <select id="scheduleSelect" required></select>
+          <br>
+          <label for="email">Email:</label>
+          <input type="email" name="email" required></input>
+          <input type="submit" value="Submit"></input>
+        </form>
+        <div class="hidden" id="addStudentDiv">
+          <h2>Please provide new student details:</h2>
+          <form class="" id="addStudentForm" method="POST" action="http://localhost:3000/api/students">
+            <label for="name">Name:</label>
+            <input type="text" name="name" required></input>
+            <br/>
+            <label for="email">Email:</label>
+            <input type="email" name="email" required></input>
+            <br/>
+            <label for="booking_seq">Booking Sequence:</label>
+            <input type="text" name="booking_seq" required></input>
+            <br/>
+            <input type="submit" value="Submit"></input>
+          </form>
+        </div>
+      <!-- End of exercise! -->
+    </article>
+    <script type="text/javascript" src="/javascripts/booking_time_slots.js"></script>
+  </body>
+</html>

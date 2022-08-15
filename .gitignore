@@ -1,0 +1,8 @@
+**/node_modules/*
+**/public/docs/*
+**/public/doc/*
+**/public/fonts/*
+**/public/vendor/*
+**/public/locales/*
+**/public/utils/*
+

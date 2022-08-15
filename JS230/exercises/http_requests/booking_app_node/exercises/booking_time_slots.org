@@ -1,0 +1,29 @@
+* Booking Time Slots
+- [✓] Markup
+  - [✓] Schedules Heading
+  - [✓] "Please select one schedule"
+  - [✓] Dropdown box for Schedules
+  - [✓] Email Input
+  - [✓] Submit Button
+- [] JavaScript
+  - [✓] Populate Available Bookings
+    - [✓] GET Request to '/api/schedules'
+    - [✓] Verify using previous exercise the schedule ids.
+    - [✓] Convert to JSON and Filter out those with Student Emails
+    - [✓] If list is 0, disable select and inform lack of availability
+  - [✓] Submit Booking Form
+    - [✓] Prevent Default
+    - [✓] POST Request to '/api/bookings' with schedule ID and student email
+    - [✓] If Response Status is 204, alert booking creation
+    - [✓] If Response Status is 404 and includes 'booking_sequence', create new student form and auto-populate email and booking sequence.
+  - [] Submit New Student Form & Booking Request
+    - [✓] Prevent Default
+    - [] POST Request to '/api/students' with email, name, and booking_sequence
+    - [] Upon response status 201, re-submit booking request.
+
+student data
+0: {id: 1, email: 'esmeralda.weber@huel.biz', name: 'Dashawn Bergstrom'}
+1: {id: 2, email: 'marquise@jacobi.info', name: 'Bettie Swaniawski'}
+2: {id: 3, email: 'keaton@morar.io', name: 'Madaline Armstrong'}
+3: {id: 4, email: 'aniya@dachkuphal.biz', name: 'Julius Balistreri'}
+4: {id: 5, email: 'enrico_prosacco@ortiz.com', name: 'Mrs.

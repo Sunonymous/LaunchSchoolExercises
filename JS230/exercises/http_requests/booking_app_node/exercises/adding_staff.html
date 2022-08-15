@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>JS230 Booking App Exercise</title>
+    <meta charset="utf-8" />
+    <style>
+      form {
+          padding: 15px;
+          width: 250px;
+          border: 2px dashed black;
+      }
+      input {
+          margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Exercise: Adding Staff</h1>
+    </header>
+    <article>
+      <p>Goal: Create an Add Staff Form</p>
+      <p>Details:</p>
+      <ul>
+        <li>Implement a form to add staff, and use the API to accomplish it.</li>
+        <li>Handle the different possible responses from the server.</li>
+        <li>Staff form inputs consists of email and name fields.</li>
+        <li>Server will alert user if forms lack entries.</li>
+      </ul>
+      <h3>Results</h3>
+      <form method="POST" id="addStaffForm" action="http://localhost:3000/api/staff_members/">
+        <label for="email">Email:</label>
+        <input type="email" name="email" value="" />
+        <br />
+        <label for="name">Name:</label>
+        <input type="text" name="name" value="" />
+        <br />
+        <input type="submit" name="submit" value="Submit" />
+      </form>
+    </article>
+    <script type="text/javascript" src="adding_staff.js"></script>
+  </body>
+</html>

@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+  <head>
+    <title>HTML Imaging</title>
+    <style>.emphasis { font-weight: bold; } .light { color: gray; }</style>
+  </head>
+  <body>
+    <header id="header"><h1 class="emphasis light">Dynamic Content</h1><p>Hello World!</p></header>
+  </body>
+</html>/html>
+
+<!-- --
+VALUES
+node1 --- <header><p>Hello World!</p></header>
+node2 --- 'Dynamic Content' --
+node3 --- <h1>Dynamic Content</h1> --
+node4 --- <style>.emphasis { font-weight: bold; }.light { color: gray; }</style>
+
+- creater header element with name node1
+- create text node 'Dynamic Content' with name node2
+- add paragraph element into header element with text 'Hello World!' --
+- insert node1 into body element
+- insert node2 before paragraph of header element
+- create h1 with name node3
+- add 'Dynamic Content' to h1
+- insert h1 as first child of header
+- set header id to header
+- set h1 class to "emphasis, light"
+- create style element with name node4
+- create two text constants with css stylings
+- change node4 type? does this line do anything? --
+  (after review, looks like style elements have this attribute though it is depreciated)
+- add css text nodes to style element
+- append style element to head
+  ---->

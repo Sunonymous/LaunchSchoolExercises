@@ -1,0 +1,45 @@
+'use strict';
+
+// Events Tracker
+
+let tracker;
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Tracker Data
+  let   eventList = [];
+  let elementList = [];
+
+  function track(event) {
+    //
+  }
+
+  tracker = {
+        list: () => eventList.slice(),
+    elements: () => elementList.slice(),
+  }
+
+  const    divRed = document.querySelector('div#red');
+  const   divBlue = document.querySelector('div#blue');
+  const divOrange = document.querySelector('div#green');
+  const  divGreen = document.querySelector('div#orange');
+
+  divRed.addEventListener('click', track(event => {
+    document.body.style.background = 'red';
+  }));
+
+  divBlue.addEventListener('click', track(event => {
+    event.stopPropagation();
+    document.body.style.background = 'blue';
+  }));
+
+  divOrange.addEventListener('click', track(event => {
+    document.body.style.background = 'orange';
+  }));
+
+  divGreen.addEventListener('click', track(event => {
+    document.body.style.background = 'green';
+  }));
+
+
+});
