@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Practice Problem: Arithmetic Calculator</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="./pp_calculator.js"></script>
+    <style>
+      .calculator {
+      }
+      #result {
+          font-size: 54px;
+          text-align: center;
+      }
+      .operand {
+          max-width: 25%;
+      }
+      .operator {
+          max-width: 25%;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Using Bulma again! -->
+    <div class="columns">
+      <div class="column"></div>
+      <div class="column mt-6">
+        <section id="calculator" class="box">
+          <div class="container">
+            <h1 id="result">0</h1>
+            <hr />
+            <input class="operand input is-primary" type="text" name="operand1"></input>
+            <div class="operator select is-secondary">
+              <select id="operator">
+                <option value="+">+</option>
+                <option value="-">-</option>
+                <option value="*">*</option>
+                <option value="/">/</option>
+                <option value="%">%</option>
+                <option value="**">**</option>
+              </select>
+            </div>
+            <input class="operand input is-primary" type="text" name="operand2"></input>
+            <button id="calculate" class="button is-success">=</button>
+          </div>
+        </section>
+      </div>
+      <div class="column"></div>
+    </div>
+  </body>
+</html>

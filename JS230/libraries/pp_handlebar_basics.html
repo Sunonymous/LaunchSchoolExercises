@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Practice Problems: HandleBars Basics</title>
+    <meta name="description" content="Practice Problems: jQuery Events">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script id="allPosts" type="text/x-handlebars">
+      {{#each posts}}
+        {{> post}}
+      {{/each}}
+    </script>
+    <script id="post" type="text/x-handlebars">
+      <div class="box mt-6">
+        <article>
+          <h1>{{title}}</h1>
+          <p><time>Posted on {{published}}</time></p>
+          {{#if tags}}
+            <hr />
+            <h3>Tags</h3>
+            <ul>
+            {{#each tags}}
+              {{> tag}}
+            {{/each}}
+            </ul>
+          {{else}}
+            <p>Unable to locate tags.</p>
+          {{/if}}
+          <hr />
+          {{{body}}}
+        </article>
+      </div>
+    </script>
+
+    <script id="tag" type="text/x-handlebars">
+     <li>{{this}}</li>
+    </script>
+  </head>
+
+  <body>
+    <div class="columns">
+      <div class="column"></div>
+      <div class="column" id="blog">
+      </div>
+      <div class="column"></div>
+    </div>
+    <script type="text/javascript" src="pp_handlebar_basics.js"></script>
+  </body>
+</html>

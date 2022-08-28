@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Guess a Word</title>
+    <meta charset="utf-8" />
+    <!-- Bulma -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="./styles.css" />
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <!-- Local Script -->
+    <script src="./guessing_game.js"></script>
+    <style>
+    </style>
+  </head>
+  <body>
+    <div class="columns">
+      <div class="column"></div>
+      <div class="column mt-3">
+        <!-- Real content here. -->
+        <main>
+          <div id="tree">
+            <div id="apples"></div>
+          </div>
+          <hr />
+          <p id="message"></p>
+          <a class="hidden" id="replay" href="#">Play again?</a>
+          <div id="spaces">
+            <h2>Word:</h2>
+          </div>
+
+          <div id="guesses">
+            <h2>Guesses:</h2>
+            <p></p>
+          </div>
+        </main>
+      </div>
+      <div class="column"></div>
+    </div>
+  </body>
+</html>

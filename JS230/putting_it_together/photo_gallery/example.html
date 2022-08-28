@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<!-- I didn't use jQuery for this assignment, so I didn't have access to the fade functions. I tried a bit with CSS, using both transitions and animations, though was failing in both cases. Need more practice with such. -->
+<html lang="en-US">
+  <head>
+    <title>Fluid Layout Gallery</title>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="gallery.css" />
+  </head>
+  <body>
+    <main>
+      <h1>My Photo Gallery</h1>
+      <!-- Full Images -->
+      <figure data-img="ancientCity">
+        <img src="./images/ancient_city.jpg" alt="An ancient, faded city in a cloudy land." title="Ancient City" />
+        <figcaption>Ancient City</figcaption>
+      </figure>
+
+      <figure class="hidden" data-img="honeycombHome">
+        <img src="./images/honeycomb_home.jpg" alt="A decorated honeycomb infused into the wall of a house." title="Honeycome Home" />
+        <figcaption>Honeycomb Home</figcaption>
+      </figure>
+
+      <figure class="hidden" data-img="hopefulPlanet">
+        <img src="./images/hopeful_planet.jpg" alt="An art containing two upright figures in an abstract space." title="Hopeful Planet" />
+        <figcaption>Hopeful Planet</figcaption>
+      </figure>
+
+      <figure class="hidden" data-img="wovenDesert">
+        <img src="./images/woven_desert.jpg" alt="" title="Woven Desert" />
+        <figcaption>Woven Desert</figcaption>
+      </figure>
+      <!-- Thumbnails -->
+      <ul>
+        <li><img class="selected" data-img="ancientCity" src="./images/ancient_city.jpg" alt="An ancient, faded city in a cloudy land." title="Ancient City" /></li>
+        <li><img data-img="honeycombHome" src="./images/honeycomb_home.jpg" alt="A decorated honeycomb infused into the wall of a house." title="Honeycomb Home" /></li>
+        <li><img data-img="hopefulPlanet" src="./images/hopeful_planet.jpg" alt="An art containing an upright figure in an abstract space." title="Hopeful Planet" /></li>
+        <li><img data-img="wovenDesert" src="./images/woven_desert.jpg" alt="" title="Woven Desert" /></li>
+      </ul>
+    </main>
+    <script src="./gallery.js"></script>
+  </body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Practice: TabNavigation</title>
+    <meta charset="utf-8" />
+    <style>
+      body {
+          background-color: beige;
+      }
+      ul {
+          background-color: azure;
+          border: 5px solid black;
+          margin: auto;
+          max-width: 45%;
+          box-sizing: border-box;
+          padding: 15px 15px;
+      }
+      ul li {
+          display: inline;
+          border: 2px dotted grey;
+          padding: 5px 15px;
+      }
+      h1 {
+          text-align: center;
+      }
+      .poems {
+          display: flex;
+      }
+      article {
+          margin: auto;
+      }
+      footer {
+          position: absolute;
+          bottom: 0;
+          height: 40px;
+          margin-top: 40px;
+          margin: auto;
+      }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="./pp_tabNav.js"></script>
+  </head>
+  <body>
+    <header>
+      <ul>
+        <li><a href="#" data-poem="rat">Rat</a></li>
+        <li><a href="#" data-poem="fish">Fish</a></li>
+        <li><a href="#" data-poem="giraffe">Giraffe</a></li>
+      </ul>
+    </header>
+    <main>
+      <h1>Choose a Haiku From the Tabs Above</h1>
+      <div class="poems">
+        <article data-poem="rat">
+          <h2>Rat</h2>
+          <p>Glorious hillside,<br /> scary rat barks<br />into the lorry.</p>
+        </article>
+
+        <article data-poem="fish">
+          <h2>Fish</h2>
+          <p>Shivering autumn.<br/>A larger, cute fish frightens<br/>because of the spouse</p>
+        </article>
+
+        <article data-poem="giraffe">
+          <h2>Giraffe</h2>
+          <p>Rainy wintertime<br/>A big, bad giraffe frightens<br/>whilst watching the bird</p>
+        </article>
+      </div>
+    </main>
+    <footer>
+      <hr/>
+      <p>poems generated pseudo-randomly from <a href="https://www.poem-generator.org.uk/">Poem-Generator</a></p>
+    </footer>
+  </body>
+</html>
