@@ -68,6 +68,9 @@ async function uponDOM() {
     likeButton = document.querySelector('.actions .like');
     favButton = document.querySelector('.actions .favorite');
 
+    // update the form photo_id value
+    document.querySelector('input[name="photo_id"]').value = photo.id;
+
     // Strange that these buttons are continually created. That seems unnecessary.
     likeButton.addEventListener('click', (e) => {
       e.preventDefault();
@@ -136,7 +139,6 @@ async function uponDOM() {
     e.preventDefault();
     const data = new URLSearchParams(new FormData(commentForm));
     const activeID = photoElems[visibleIdx].getAttribute('data-id');
-    data.append('photo_id', activeID);
 
     await fetch('/comments/new', {
       method: 'POST',
