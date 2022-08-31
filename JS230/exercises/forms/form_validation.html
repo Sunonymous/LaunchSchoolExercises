@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Form Validation</title>
+    <meta charset="utf-8" />
+    <!-- Bulma -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <!-- Local Script -->
+    <script src="form_validation_p1.js"></script>
+    <style>
+      .hidden {
+          display: none;
+      }
+
+      .input.invalid {
+          border: 1px dotted red;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="columns">
+      <div class="column"></div>
+      <div class="column mt-6">
+        <!-- Real content here. -->
+        <div id="notice" class="container m-4 hidden">
+          <div class="notification is-danger">
+            Fix Errors Before Submitting this Form
+          </div>
+        </div>
+        <div class="container p-6 box has-background-light">
+          <h1 class="title has-text-centered has-text-success">Sign Me Up!</h1>
+          <div class="content has-text-right has-text-info">(*) Required Field</div>
+          <form action="" novalidate>
+            <div class="field">
+              <label for="fName" class="label">First Name*</label>
+              <div class="control">
+                <input name="fName" class="input" type="text" required/>
+                <div class="content is-small has-text-danger has-text-right"><p></p></div>
+              </div>
+              <label for="lName" class="label">Last Name*</label>
+              <div class="control">
+                <input name="lName" class="input" type="text" required/>
+                <div class="content is-small has-text-danger has-text-right"><p></p></div>
+              </div>
+            </div>
+            <div class="field">
+              <label for="email" class="label">Email Address*</label>
+              <div class="control">
+                <input name="email" class="input" type="email" pattern=".+@.+" required/>
+                <div class="content is-small has-text-danger has-text-right"><p></p></div>
+              </div>
+            </div>
+            <div class="field">
+              <label for="password" class="label">Password*</label>
+              <div class="control">
+                <input name="password" class="input" type="password" minlength="10" required/>
+                <div class="content is-small has-text-danger has-text-right"><p></p></div>
+              </div>
+            </div>
+            <div class="field">
+              <label for="phone" class="label">Phone</label>
+              <div class="control">
+                <input name="phone" class="input" type="text" pattern="\d{3}-\d{3}-\d{4}" placeholder="208-911-4112"/>
+                <div class="content is-small has-text-danger has-text-right"><p></p></div>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <button class="button is-success" type="submit" required/>Sign Up</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="column"></div>
+    </div>
+  </body>
+</html>
