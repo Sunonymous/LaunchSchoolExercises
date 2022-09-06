@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Car Shop</title>
+    <meta charset="utf-8" />
+    <!-- Bulma -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <!-- Handlebars -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.js"></script>
+    <!-- Local Script -->
+    <script src="./car_shop.js"></script>
+    <!-- Handlebars Template -->
+    <script id="carCardTemplate" type="text/x-handlebars">
+      <div class="card carCard"><!-- CardStart -->
+        <div class="card-image">
+          <figure>
+            <img src="{{image}}">
+          </figure>
+        </div>
+        <div class="content p-3">
+          <h3>{{make}} {{model}}</h3>
+          <p>Year: {{year}}</p>
+          <p>Price: {{price}}</p>
+          <button class="button is-success">Buy</button>
+        </div>
+      </div><!-- CardEnd -->
+    </script>
+    <style>
+      #filterMenu {
+          border-radius: 0 50% 50% 0;
+      }
+
+      .carCard {
+          display: inline-block;
+          margin: 5px 10px;
+          max-width: 25%;
+          max-height: 20%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="columns is-vcentered" style="min-height: 100vh;">
+      <div id="filterMenu" class="column is-one-fifth p-6 has-background-light"><!-- Filter Menu -->
+        <aside class="menu">
+          <h3 class="subtitle is-size-5">Car Filters</h3>
+          <p class="menu-label">Make</p>
+          <ul class="menu-list">
+            <div class="select">
+              <select id="makeSelect" name="make">
+              </select>
+            </div>
+          </ul>
+          <p class="menu-label">Model</p>
+          <ul class="menu-list">
+            <div class="select">
+              <select id="modelSelect" name="model">
+              </select>
+            </div>
+          </ul>
+          <p class="menu-label">Price</p>
+          <ul class="menu-list">
+            <div class="select">
+              <select id="priceSelect" name="price">
+              </select>
+            </div>
+          </ul>
+          <p class="menu-label">Year</p>
+          <ul class="menu-list">
+            <div class="select">
+              <select id="yearSelect" name="year">
+              </select>
+            </div>
+          </ul>
+          <button class="button is-primary mt-3" id="filterBtn">Filter</button>
+          <button class="button is-danger mt-3" id="resetBtn">Reset</button>
+        </aside>
+      </div>
+      <div id="carColumn" class="column mt-6"><!-- Car Cards Go Here -->
+      </div><!-- Car Cards end. -->
+    </div>
+  </body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>What You See is What You Get</title>
+    <meta charset="utf-8" />
+    <!-- Bulma -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <!-- Material Design Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@6.9.96/css/materialdesignicons.min.css">
+    <!-- Local Script -->
+    <script src="./wysiwyg.js"></script>
+    <style>
+      ul {
+          list-style-type: circle;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="columns">
+      <div class="column is-one-fifth"></div>
+      <div class="column mt-6"><!-- Real content here. -->
+        <div class="block"></div>
+        <div class="block">
+          <div class="box">
+            <div id="editableContent" contenteditable="true">
+              Hello hello hello!
+            </div>
+            <hr/>
+            <div id="editorControls" class="is-flex is-justify-content-space-evenly"><!-- Buttons -->
+              <button class="button" data-cmd="italic"><!-- Italics -->
+                <span class="icon is-medium">
+                  <i class="mdi mdi-format-italic is-dark"></i>
+                </span>
+              </button>
+              <button class="button" data-cmd="bold"><!-- Bold -->
+                <span class="icon is-medium">
+                  <i class="mdi mdi-format-bold is-dark"></i>
+                </span>
+              </button>
+              <button class="button" data-cmd="underline"><!-- Underline -->
+                <span class="icon is-medium">
+                  <i class="mdi mdi-format-underline is-dark"></i>
+                </span>
+              </button>
+              <button class="button" data-cmd="strikeThrough"><!-- Strikethrough -->
+                <span class="icon is-medium">
+                  <i class="mdi mdi-format-strikethrough is-dark"></i>
+                </span>
+              </button>
+              <button class="button" data-cmd="createLink"><!-- Hyperlink -->
+                <span class="icon is-medium">
+                  <i class="mdi mdi-link is-dark"></i>
+                </span>
+              </button>
+              <button class="button" data-cmd="insertUnorderedList"><!-- Unordered List -->
+                <span class="icon is-medium">
+                  <i class="mdi mdi-format-list-bulleted is-dark"></i>
+                </span>
+              </button>
+              <button class="button" data-cmd="insertOrderedList"><!-- Ordered List -->
+                <span class="icon is-medium">
+                  <i class="mdi mdi-format-list-numbered is-dark"></i>
+                </span>
+              </button>
+              <button class="button" data-cmd="justifyLeft"><!-- Align Left -->
+                <span class="icon is-medium">
+                  <i class="mdi mdi-align-horizontal-left is-dark"></i>
+                </span>
+              </button>
+              <button class="button" data-cmd="justifyCenter"><!-- Align Center -->
+                <span class="icon is-medium">
+                  <i class="mdi mdi-align-horizontal-center is-dark"></i>
+                </span>
+              </button>
+              <button class="button" data-cmd="justifyRight"><!-- Align Right -->
+                <span class="icon is-medium">
+                  <i class="mdi mdi-align-horizontal-right is-dark"></i>
+                </span>
+              </button>
+              <button class="button" data-cmd="justifyFull"><!-- Align Justified -->
+                <span class="icon is-medium">
+                  <i class="mdi mdi-align-vertical-distribute is-dark"></i>
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="block"></div>
+      </div><!-- Real content ends. -->
+      <div class="column is-one-fifth"></div>
+    </div>
+  </body>
+</html>

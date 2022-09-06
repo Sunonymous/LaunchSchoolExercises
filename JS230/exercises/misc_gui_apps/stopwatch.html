@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Stopwatch</title>
+    <meta charset="utf-8" />
+    <!-- Monospaced Font, courtesy of Google -->
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Inconsolata">
+    <!-- Bulma -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <!-- Local Script -->
+    <script src="./stopwatch.js"></script>
+    <style>
+      p.time {
+          display: inline-block;
+          font-family: 'Inconsolata';
+      }
+    </style>
+  </head>
+  <body>
+    <div class="columns is-vcentered">
+      <div class="column"></div>
+      <div class="column mt-6"><!-- Real content here. -->
+        <div class="card">
+          <div class="card-content">
+            <h1 class="title has-text-success has-text-centered">Stopwatch</h1>
+            <nav class="level">
+              <div class="level-item has-text-centered">
+                <p id="hours" class="time is-size-3">00</p>
+                <p class="separator is-size-5">:</p>
+                <p id="minutes" class="time is-size-3">00</p>
+                <p class="separator is-size-5">:</p>
+                <p id="seconds" class="time is-size-3">00</p>
+                <p class="separator is-size-5">:</p>
+                <p id="centiseconds" class="time is-size-3">00</p>
+              </div>
+            </nav>
+            <nav class="level">
+              <div class="level-item">
+                <button id="startStop" class="button is-primary mr-3">Start</button>
+                <button id="reset" class="button is-danger ml-3">Reset</button>
+              </div>
+            </nav>
+          </div>
+        </div>
+      </div><!-- Real content ends. -->
+      <div class="column"></div>
+    </div>
+  </body>
+</html>

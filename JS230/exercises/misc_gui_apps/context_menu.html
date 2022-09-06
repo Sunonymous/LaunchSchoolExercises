@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Custom Delete Confirmation</title>
+    <meta charset="utf-8" />
+    <!-- Bulma -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <!-- Local Script -->
+    <script src="./context_menu.js"></script>
+    <style>
+      #context-menu {
+          position: absolute !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="columns">
+      <div class="column"></div>
+      <div class="column mt-6"><!-- Real content here. -->
+        <nav class="panel">
+          <p class="panel-heading">Todo List</p>
+        </nav>
+      </div>
+      <div class="column mt-6">
+        <article id="confirmation-box" class="message is-hidden ">
+          <div class="message-header">
+            <p>Confirm Delete</p>
+          </div>
+          <div class="message-body">
+            <p>Are you sure you wish to delete the item?</p>
+            <br />
+            <button id="confirm-delete" class="button is-danger">Yes</button>
+            <button id="confirm-cancel" class="button is-primary">No</button>
+          </div>
+        </article>
+        <div class="card is-hidden" id="context-menu">
+          <aside class="menu">
+            <ul class="menu-list">
+              <li><a>Show Details</a></li>
+              <li><a>Edit Todo</a></li>
+              <li id="delete-from-menu"><a>Delete Todo</a></li>
+            </ul>
+          </aside>
+        </div>
+      </div>
+      <div class="column">
+      </div>
+    </div>
+  </body>
+</html>
+<!-- Example Todo --
+<label class="panel-block is-justify-content-space-between" data-id="3">
+  <input type="checkbox">TODO_TASK<button class="delete has-background-danger is-pulled-right"></button>
+</label>
+-->

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Ugly Calculator</title>
+    <meta charset="utf-8" />
+    <!-- Local Script -->
+    <script src="./calculator.js"></script>
+    <style>
+    body {
+        font-family: sans-serif;
+      }
+      .container {
+          display: flex;
+          border: 10px solid goldenrod;
+          min-height: 100vh;
+          box-sizing: border-box;
+      }
+      .operators {
+          background: #01b493;
+          width: 12.5%;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-around;
+          align-content: center;
+          flex-wrap: wrap;
+      }
+      .window {
+        background: #268bd9;
+        width: 75%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      div.title {
+        align-self: flex-start;
+        font-size: 6rem;
+        color: white;
+      }
+      div.operation {
+        background: aliceblue;
+        flex-basis: 200px;
+      }
+      p.operation {
+        text-align: center;
+        line-height: 100%;
+        font-size: 4rem;
+      }
+      div.entry {
+        background: lightcyan;
+        flex-basis: 200px;
+      }
+      p.entry {
+        text-align: center;
+        line-height: 100%;
+        font-size: 4rem;
+      }
+      .numbers {
+          background: #01b493;
+          width: 12.5%;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-around;
+          align-content: center;
+          flex-wrap: wrap;
+      }
+      input[type="button"] {
+          box-sizing: border-box;
+          margin: 10px 5px;
+          width: 50%;
+          height: 10%;
+          border-radius: 30px;
+          flex: 1;
+          font-size: 32px;
+          text-align: center;
+          border: 1px outset blue;
+          background-color: lightBlue;
+          cursor: pointer;
+      }
+      input[type="button"]:hover {
+          background-color: blue;
+          color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="operators">
+        <input data-func="calc"    type="button" value="+"></input>
+        <input data-func="calc"    type="button" value="-"></input>
+        <input data-func="calc"    type="button" value="x"></input>
+        <input data-func="calc"    type="button" value="/"></input>
+        <input data-func="calc"    type="button" value="%"></input>
+        <input data-func="opEqual" type="button" value="="></input>
+        <input data-func="opNeg"   type="button" value="NEG"></input>
+        <input data-func="opClear" type="button" value="C"></input>
+        <input data-func="opClearEntry" type="button" value="CE"></input>
+      </div>
+      <div class="window">
+        <div class="title">Ugly Calculator</div>
+        <div class="operation">
+          <p class="operation"></p>
+        </div>
+        <div class="entry">
+          <p class="entry"></p>
+        </div>
+      </div>
+      <div class="numbers">
+        <input data-func="append" type="button" value="0"></input>
+        <input data-func="append" type="button" value="1"></input>
+        <input data-func="append" type="button" value="2"></input>
+        <input data-func="append" type="button" value="3"></input>
+        <input data-func="append" type="button" value="4"></input>
+        <input data-func="append" type="button" value="5"></input>
+        <input data-func="append" type="button" value="6"></input>
+        <input data-func="append" type="button" value="7"></input>
+        <input data-func="append" type="button" value="8"></input>
+        <input data-func="append" type="button" value="9"></input>
+      </div>
+    </div>
+  </body>
+</html>
